@@ -1,5 +1,5 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color } from 'three';
+import { Scene, Color, Fog } from 'three';
 import { Flower, Land } from 'objects';
 import { BasicLights } from 'lights';
 
@@ -24,6 +24,8 @@ class SeedScene extends Scene {
         const lights = new BasicLights();
         this.add(land, flower, lights);
 
+        this.fog = new Fog(0xcccccc, 15, 20);
+
         // Populate GUI
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
     }
@@ -34,7 +36,7 @@ class SeedScene extends Scene {
 
     update(timeStamp) {
         const { rotationSpeed, updateList } = this.state;
-        this.rotation.y = (rotationSpeed * timeStamp) / 10000;
+        this.rotation.y = 0;
 
         // Call update for each object in the updateList
         for (const obj of updateList) {
