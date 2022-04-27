@@ -11,7 +11,7 @@ class SeedScene extends Scene {
         // Init state
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
-            rotationSpeed: 1,
+            // rotationSpeed: 1,
             updateList: [],
         };
 
@@ -21,6 +21,12 @@ class SeedScene extends Scene {
         //// Add meshes to scene
         const lights = new BasicLights();
         const land = new Land();
+
+        // for use by camera and music
+        // width and depth of land plane
+        let width = land.width;
+        let depth = land.depth;
+
         const flower = new Flower(this);
 
         // Add trees
@@ -47,7 +53,7 @@ class SeedScene extends Scene {
         this.fog = new Fog(0xcccccc, 50, 200);
 
         // Populate GUI
-        this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+        // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
     }
 
     addToUpdateList(object) {
@@ -55,7 +61,7 @@ class SeedScene extends Scene {
     }
 
     update(timeStamp) {
-        const { rotationSpeed, updateList } = this.state;
+        const { updateList } = this.state;
         this.rotation.y = 0;
 
         // Call update for each object in the updateList
