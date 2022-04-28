@@ -1,6 +1,6 @@
 import * as Dat from 'dat.gui';
 import { Scene, Color, Fog, Vector3 } from 'three';
-import { Flower, Land, Tree, Rock, Bush } from 'objects';
+import { Flower, Land, Tree, Rock, Bush, Cloud } from 'objects';
 import { BasicLights } from 'lights';
 
 class SeedScene extends Scene {
@@ -33,13 +33,16 @@ class SeedScene extends Scene {
         const rock2 = new Rock(new Vector3(5, 0, 0), "boulder");
         const rocks = [rock1, rock2];
 
+        // Add cloud
+        const cloud = new Cloud(new Vector3(0, 15, 0));
+
         // Add bushes
         const bush1 = new Bush(new Vector3(0, 0, 3));
         const bush2 = new Bush(new Vector3(5, 0, 3), "berry");
         const bush3 = new Bush(new Vector3(8, 0, 5), "snow");
         const bushes = [bush1, bush2, bush3];
 
-        this.add(land, flower, lights, ...trees, ...rocks, ...bushes);
+        this.add(land, flower, lights, ...trees, ...rocks, ...bushes, cloud);
 
         this.fog = new Fog(0xcccccc, 50, 200);
 
