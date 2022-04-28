@@ -1,6 +1,6 @@
 import * as Dat from 'dat.gui';
 import { Scene, Color, Fog, Vector3 } from 'three';
-import { Flower, Land, Rock } from 'objects';
+import { Flower, Land, Tree, Rock } from 'objects';
 import { BasicLights } from 'lights';
 
 class SeedScene extends Scene {
@@ -18,14 +18,22 @@ class SeedScene extends Scene {
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
 
-        // Add meshes to scene
+        //// Add meshes to scene
+        const lights = new BasicLights();
         const land = new Land();
         const flower = new Flower(this);
+
+        // Add trees
+        const tree1 = new Tree(this, new Vector3(-5, 0, 1));
+        const tree2 = new Tree(this, new Vector3(0, 0, 5), "pine-tree");
+        const trees = [tree1, tree2];
+
+        // Add rocks
         const rock1 = new Rock(new Vector3(3, 0, 0));
         const rock2 = new Rock(new Vector3(5, 0, 0), "boulder");
         const rocks = [rock1, rock2];
-        const lights = new BasicLights();
-        this.add(land, flower, lights, ...rocks);
+
+        this.add(land, flower, lights, ...trees, ...rocks);
 
         this.fog = new Fog(0xcccccc, 50, 200);
 

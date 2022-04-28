@@ -7,7 +7,7 @@ import ROCK_MOSS from './rock-moss.gltf';
 import BOULDER from './boulder.gltf';
 
 class Rock extends Group {
-    constructor(position, model) {
+    constructor(position, type) {
         super();
 
         const loader = new GLTFLoader();
@@ -15,14 +15,14 @@ class Rock extends Group {
         this.name = "rock";
 
         let MODEL = ROCK;
-        switch (model) {
-            case "rocks":
+        switch (type) {
+            case "multiple":
                 MODEL = ROCKS;
                 break;
-            case "rock-snow":
+            case "snow":
                 MODEL = ROCK_SNOW;
                 break;
-            case "rock-moss":
+            case "moss":
                 MODEL = ROCK_MOSS;
                 break;
             case "boulder":
