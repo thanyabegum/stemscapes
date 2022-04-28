@@ -1,6 +1,4 @@
 import { Mesh, PlaneGeometry, MeshBasicMaterial, DoubleSide } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import MODEL from './land.gltf';
 
 class Land extends Mesh {
     constructor() {
@@ -9,14 +7,6 @@ class Land extends Mesh {
 
         // Call parent Group() constructor
         super(geometry, material);
-
-        // const loader = new GLTFLoader();
-
-        // this.name = 'land';
-
-        // loader.load(MODEL, (gltf) => {
-        //     this.add(gltf.scene);
-        // });
     }
 }
 
