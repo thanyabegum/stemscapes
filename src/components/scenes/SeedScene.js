@@ -1,5 +1,6 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color } from 'three';
+import * as THREE from 'three';
+import { Scene, Color, Vector3 } from 'three';
 import { Flower, Land } from 'objects';
 import { BasicLights } from 'lights';
 
@@ -22,7 +23,12 @@ class SeedScene extends Scene {
         const land = new Land();
         const flower = new Flower(this);
         const lights = new BasicLights();
-        this.add(land, flower, lights);
+        const floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
+        floorGeometry.rotateX( - Math.PI / 2 );
+        const floorMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00});
+        const floor = new THREE.Mesh( floorGeometry, floorMaterial )
+        
+        this.add(land, flower, lights, floor);
 
         // Populate GUI
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
