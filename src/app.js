@@ -64,6 +64,7 @@ gui.add(params, 'play_vocals').name('toggle vocals');
 gui.add(params, 'play_other').name('toggle other');
 gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
     var objReq = new XMLHttpRequest();
+    console.log("sending request")
     objReq.open("GET", "http://localhost:8888" + "?filename=" + value, false);
     objReq.send(null);
 });
