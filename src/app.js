@@ -51,7 +51,10 @@ var params = {
     play_other: function() {
         toggle_mute(other);
     },
-    file_name: ""
+    file_name: "frank.mp3",
+    load: function() {
+        init_audio(listener);
+    }
 
 };
 gui.add(params, 'play').name('play');
@@ -60,9 +63,11 @@ gui.add(params, 'play_drums').name('toggle drums');
 gui.add(params, 'play_vocals').name('toggle vocals');
 gui.add(params, 'play_other').name('toggle other');
 gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
-    var { exec, spawn } = require('child_process');
-    console.log(require('child_process'))
+    var objReq = new XMLHttpRequest();
+    objReq.open("GET", "http://localhost:8888" + "?filename=" + value, false);
+    objReq.send(null);
 });
+gui.add(params, "load");
 
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
