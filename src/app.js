@@ -6,16 +6,63 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Clock } from 'three';
-import * as THREE from 'three';
-import { SeedScene } from 'scenes';
+import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import { SeedScene } from 'scenes';
+import { init_audio, toggle_mute, play_all } from './audio';
+import * as Dat from 'dat.gui'; //testoresto
 
 // Initialize core ThreeJS components
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1250);
 const clock = new Clock();
 const scene = new SeedScene();
 const renderer = new WebGLRenderer({ antialias: true });
+const listener = new AudioListener();
+camera.add( listener ); 
+
+// testoresto
+let bass;
+let drums;
+let vocals;
+let other;
+const gui = new Dat.GUI();
+init_audio(listener);
+var params = {
+    play : function() {
+        let sounds = play_all()
+        if (sounds === undefined) {
+            console.log("please wait for audio to load");
+            return;
+        }
+        bass = sounds.bass;
+        drums = sounds.drums;
+        vocals = sounds.vocals;
+        other = sounds.other;
+    },
+    play_bass: function() {
+        toggle_mute(bass);
+    },
+    play_drums: function() {
+        toggle_mute(drums);
+    },
+    play_vocals: function() {
+        toggle_mute(vocals);
+    },
+    play_other: function() {
+        toggle_mute(other);
+    },
+    file_name: ""
+
+};
+gui.add(params, 'play').name('play');
+gui.add(params, 'play_bass').name('toggle bass');
+gui.add(params, 'play_drums').name('toggle drums');
+gui.add(params, 'play_vocals').name('toggle vocals');
+gui.add(params, 'play_other').name('toggle other');
+gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
+    var { exec, spawn } = require('child_process');
+    console.log(require('child_process'))
+});
 
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
@@ -103,8 +150,8 @@ onWindowResize();
 window.addEventListener('resize', onWindowResize, false);
 
 // Render loop
-const velocity = new THREE.Vector3();
-const direction = new THREE.Vector3();
+const velocity = new Vector3();
+const direction = new Vector3();
 
 const animate = (timeStamp) => {
     requestAnimationFrame(animate);
