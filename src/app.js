@@ -6,17 +6,13 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector3, ColorKeyframeTrack, Audio } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Vector3, ColorKeyframeTrack, Audio, Color } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
 import { init_audio, toggle_mute, play_all } from './audio';
 
 import * as THREE from 'three'
 import * as Dat from 'dat.gui'; //testoresto
-import { WebGLRenderer, PerspectiveCamera, Vector3, Color } from 'three';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { SeedScene } from 'scenes';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
 // Initialize core ThreeJS components
