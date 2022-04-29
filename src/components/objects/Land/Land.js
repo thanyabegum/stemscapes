@@ -1,54 +1,71 @@
-import { Mesh, MeshPhongMaterial, Geometry, Vector3, Face3 } from 'three';
-import { random } from 'mathjs';
+import { Color, Mesh, Vector3, TextureLoader, PlaneBufferGeometry, MeshBasicMaterial, Float32BufferAttribute } from 'three';
+import { abs, random, pow } from 'mathjs';
 
 class Land extends Mesh {
     constructor() {
-        let new_geo = new Geometry();
 
-        let width = 500;
-        let depth = 500;
-        let height = 0.65;
-        let spacingX = 1;
-        let spacingZ = 1;
+        let width = 600;
+        let depth = 600;
 
-        // create vertices
-        for (let z = 0; z < depth; z++) {
-            for (let x = 0; x < width; x++) {
-                let vertex = new Vector3(
-                    x * spacingX,
-                    random() * height,
-                    z * spacingZ);
-                new_geo.vertices.push(vertex);
-            }
+        // -----------
+        let floorGeometry = new PlaneBufferGeometry(width, depth, 200, 200);
+        floorGeometry.rotateX(-Math.PI / 2);
+
+        // vertex displacement
+
+        let position = floorGeometry.attributes.position;
+
+        let vertex = new Vector3();
+        for (let i = 0, l = position.count; i < l; i++) {
+
+            vertex.fromBufferAttribute(position, i);
+
+            vertex.y += random();
+
+            position.setXYZ(i, vertex.x, vertex.y, vertex.z);
+
         }
 
-        // create faces
-        for (let z = 0; z < depth - 1; z++) {
-            for (let x = 0; x < width - 1; x++) {
-                let a = x + z * width;
-                let b = (x + 1) + (z * width);
-                let c = x + ((z + 1) * width);
-                let d = (x + 1) + ((z + 1) * width);
-                let face1 = new Face3(b, a, c);
-                let face2 = new Face3(c, d, b);
-                new_geo.faces.push(face1);
-                new_geo.faces.push(face2);
-            }
+        floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
+
+        position = floorGeometry.attributes.position;
+        let colorsFloor = [];
+
+        let color = new Color();
+        for (let i = 0, l = position.count; i < l; i++) {
+            let gray = random() / 4 + 0.75;
+            color.setRGB(gray, gray, gray);
+            colorsFloor.push(color.r, color.g, color.b);
+
         }
 
-        new_geo.computeFaceNormals();
-        const new_mat = new MeshPhongMaterial({ color: 0x2b4d19 });
-        new_mat.flatShading = true;
-        // new_mat.shininess = 0;
+        floorGeometry.setAttribute('color', new Float32BufferAttribute(colorsFloor, 3));
+        let texture = new TextureLoader().load("./src/components/objects/Land/textures/ground.png");
+        // let material = new MeshPhongMaterial({ color: 0x275418, });
 
-        // Call parent Mesh() constructor
-        super(new_geo, new_mat);
+        const floorMaterial = new MeshBasicMaterial({ vertexColors: true, map: texture });
 
-        this.translateX(-width / 1.5);
-        this.translateZ(-depth / 4);
+
+        super(floorGeometry, floorMaterial);
+        // ------------
+
         this.name = 'terrain';
         this.width = width;
         this.depth = depth;
+
+        // create divot for pond
+        for (let i = 0, l = position.count; i < l; i++) {
+
+            vertex.fromBufferAttribute(position, i);
+
+            if (abs(vertex.x) < 10 && abs(vertex.z) < 10) {
+                vertex.y = (pow(vertex.x, 2) / 10) + (pow(vertex.z, 2) / 10) - 16;
+            }
+
+            position.setXYZ(i, vertex.x, vertex.y, vertex.z);
+
+        }
+
     }
 }
 
