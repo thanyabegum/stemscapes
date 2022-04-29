@@ -12,7 +12,8 @@ export function init_audio(listener) {
         const sound_bass = new THREE.Audio( listener );        
         sound_bass.setBuffer( buffer );
         sound_bass.setLoop( true );
-        sound_bass.setVolume( 0.5 ); //change this        
+        sound_bass.setVolume( 0.5 ); //change this
+        sound_bass.isPlaying = false;   
         bass = sound_bass;
     });    
     
@@ -24,6 +25,7 @@ export function init_audio(listener) {
         sound_drums.setBuffer( buffer );
         sound_drums.setLoop( true );
         sound_drums.setVolume( 0.5 ); //change this
+        sound_drums.isPlaying = false;
         drums = sound_drums;    
     });
     
@@ -35,6 +37,7 @@ export function init_audio(listener) {
         sound_other.setBuffer( buffer );
         sound_other.setLoop( true );
         sound_other.setVolume( 0.5 ); //change this
+        sound_other.isPlaying = false;
         other = sound_other;
     });
 
@@ -46,15 +49,24 @@ export function init_audio(listener) {
         sound_vocals.setBuffer( buffer );
         sound_vocals.setLoop( true );
         sound_vocals.setVolume( 0.5 ); //change this
+        sound_vocals.isPlaying = false;
         vocals = sound_vocals;
     });
 }
 export function play_all() {
     if(bass === undefined || drums === undefined || other === undefined || vocals === undefined) return undefined;
-    bass.play();
-    drums.play();
-    other.play();
-    vocals.play();
+    if(!vocals.isPlaying) {        
+        bass.play();
+        drums.play();
+        other.play();
+        vocals.play();
+    }
+    else {        
+        bass.pause();
+        drums.pause();
+        other.pause();
+        vocals.pause();
+    }
     let sounds = {
         'bass': bass,
         'drums': drums,
