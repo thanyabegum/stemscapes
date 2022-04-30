@@ -9,7 +9,7 @@
 import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { SeedScene } from 'scenes';
-import { init_audio, toggle_mute, play_all } from './audio';
+import { init_audio, toggle_mute, play_all, get_sounds } from './audio';
 import * as Dat from 'dat.gui'; //testoresto
 
 // Initialize core ThreeJS components
@@ -25,19 +25,39 @@ let bass;
 let drums;
 let vocals;
 let other;
+let sustain_bass = false;
+let sustain_drums = false;
+let sustain_vocals = false;
+let sustain_other = false;
 const gui = new Dat.GUI();
-init_audio(listener);
-var params = {
+
+function wait_init_and_play(){
+    let s = get_sounds();
+    if(s.bass !== undefined && s.drums !== undefined && s.other !== undefined && s.vocals !== undefined) {
+        console.log("sounds loaded");
+        if(!s.other.isPlaying) {
+            let sounds = play_all();
+            if (sounds === undefined) {
+                console.log("please wait for audio to load");
+                return undefined;
+            }
+            bass = sounds.bass;
+            drums = sounds.drums;
+            vocals = sounds.vocals;
+            other = sounds.other;
+            }
+        return;
+    }
+    else {
+        setTimeout(wait_init_and_play, 250);
+    }
+}
+
+let params = {
     play : function() {
-        let sounds = play_all()
-        if (sounds === undefined) {
-            console.log("please wait for audio to load");
-            return;
-        }
-        bass = sounds.bass;
-        drums = sounds.drums;
-        vocals = sounds.vocals;
-        other = sounds.other;
+        init_audio(listener);
+        wait_init_and_play();
+        return "success"
     },
     play_bass: function() {
         toggle_mute(bass);
@@ -54,9 +74,29 @@ var params = {
     file_name: "frank.mp3",
     load: function() {
         init_audio(listener);
+        wait_init_and_play();
+    },
+    toggle_sustain: function() {
+        if(camera.position.x > 0 && camera.position.z > 0) {
+            sustain_bass = !sustain_bass
+            console.log(sustain_bass);
+        }
+        if(camera.position.x > 0 && camera.position.z < 0) {
+            sustain_drums = !sustain_drums
+            console.log(sustain_drums);
+        }
+        if(camera.position.x < 0 && camera.position.z > 0) {
+            sustain_other = !sustain_other
+            console.log(sustain_other);
+        }
+        if(camera.position.x < 0 && camera.position.z < 0) {
+            sustain_vocals = !sustain_vocals
+            console.log(sustain_vocals);
+        }
     }
 
 };
+
 gui.add(params, 'play').name('play');
 gui.add(params, 'play_bass').name('toggle bass');
 gui.add(params, 'play_drums').name('toggle drums');
@@ -69,6 +109,7 @@ gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
     objReq.send(null);
 });
 gui.add(params, "load");
+gui.add(params, "toggle_sustain").name("toggle sustain");
 
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
@@ -161,6 +202,68 @@ const direction = new Vector3();
 
 const animate = (timeStamp) => {
     requestAnimationFrame(animate);
+
+    if(camera.position.x > 0 && camera.position.z > 0) {
+        if(bass !== undefined){
+            if(bass.gain.gain.value == 0.0) {
+                console.log("bass")
+                params.play_bass();
+            }
+        }
+
+    } else if (!sustain_bass) {
+        if(bass !== undefined){
+            if(bass.gain.gain.value != 0.0) {                
+                params.play_bass();
+            }
+        }
+    }
+
+    if(camera.position.x > 0 && camera.position.z < 0) {
+        if(drums !== undefined){
+            if(drums.gain.gain.value == 0.0) {
+                console.log("drums")
+                params.play_drums();
+            }
+        }
+
+    } else if (!sustain_drums) {
+        if(drums !== undefined){
+            if(drums.gain.gain.value != 0.0) {                
+                params.play_drums();
+            }
+        }
+    }
+
+    if(camera.position.x < 0 && camera.position.z > 0) {
+        if(other !== undefined){
+            if(other.gain.gain.value == 0.0) {
+                console.log("other")
+                params.play_other();
+            } 
+        }       
+    } else if (!sustain_other) {
+        if(other !== undefined){
+            if(other.gain.gain.value != 0.0) {                
+                params.play_other();
+            } 
+        }       
+    }
+
+    if(camera.position.x < 0 && camera.position.z < 0) {
+        if(vocals !== undefined){
+            if(vocals.gain.gain.value == 0.0) {
+                console.log("vocals")
+                params.play_vocals();
+            }  
+        }
+    } else if (!sustain_vocals) {
+        if(vocals !== undefined){
+            if(vocals.gain.gain.value != 0.0) {
+                params.play_vocals();
+            }  
+        }
+    }
 
     // Get change in time from last frame
     const delta = clock.getDelta();
