@@ -7,3 +7,4 @@ export * from './Cloud';
 export * from './Zoha';
 export * from './Water';
 export * from './Mountain';
+export * from './Sign';
