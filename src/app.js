@@ -55,7 +55,9 @@ function wait_init_and_play(){
 
 let params = {
     play : function() {
-        init_audio(listener);
+        if(bass === undefined) {
+            init_audio(listener);
+        }        
         wait_init_and_play();
         return "success"
     },
@@ -98,18 +100,18 @@ let params = {
 };
 
 gui.add(params, 'play').name('play');
-gui.add(params, 'play_bass').name('toggle bass');
-gui.add(params, 'play_drums').name('toggle drums');
-gui.add(params, 'play_vocals').name('toggle vocals');
-gui.add(params, 'play_other').name('toggle other');
+// gui.add(params, 'play_bass').name('toggle bass');
+// gui.add(params, 'play_drums').name('toggle drums');
+// gui.add(params, 'play_vocals').name('toggle vocals');
+// gui.add(params, 'play_other').name('toggle other');
 gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
     var objReq = new XMLHttpRequest();
     console.log("sending request")
     objReq.open("GET", "http://localhost:8888" + "?filename=" + value, false);
     objReq.send(null);
 });
-gui.add(params, "load");
-gui.add(params, "toggle_sustain").name("toggle sustain");
+// gui.add(params, "load");
+gui.add(params, "toggle_sustain").name("toggle sustain (p)");
 
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
@@ -143,23 +145,26 @@ const onKeyDown = function(event) {
     switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
-            moveForward = true;
+            moveForward = (true && vocals !== undefined);
             break;
         case 'ArrowLeft':
         case 'KeyA':
-            moveLeft = true;
+            moveLeft = (true && vocals !== undefined);
             break;
         case 'ArrowDown':
         case 'KeyS':
-            moveBackward = true;
+            moveBackward = (true && vocals !== undefined);
             break;
         case 'ArrowRight':
         case 'KeyD':
-            moveRight = true;
+            moveRight = (true && vocals !== undefined);
             break;
         case 'Space':
-            if (canJump === true) velocity.y += 100;
+            if ( canJump === true && vocals !== undefined) velocity.y += 100;
             canJump = false;
+            break;
+        case 'KeyP':
+            params.toggle_sustain();
     }
 };
 
