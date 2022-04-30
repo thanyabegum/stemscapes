@@ -1,5 +1,6 @@
 import { Color, Mesh, Vector3, TextureLoader, PlaneBufferGeometry, MeshBasicMaterial, Float32BufferAttribute } from 'three';
 import { abs, random, pow } from 'mathjs';
+import GROUND_TEXTURE from '../../../../assets/textures/ground.png';
 
 class Land extends Mesh {
     constructor() {
@@ -40,9 +41,7 @@ class Land extends Mesh {
         }
 
         floorGeometry.setAttribute('color', new Float32BufferAttribute(colorsFloor, 3));
-        let texture = new TextureLoader().load("./src/components/objects/Land/textures/ground.png");
-        // let material = new MeshPhongMaterial({ color: 0x275418, });
-
+        let texture = new TextureLoader().load(GROUND_TEXTURE);
         const floorMaterial = new MeshBasicMaterial({ vertexColors: true, map: texture });
 
 
