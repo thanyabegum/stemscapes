@@ -49,6 +49,7 @@ module.exports = {
             lights$: path.resolve(__dirname, 'src/components/lights'),
             objects$: path.resolve(__dirname, 'src/components/objects'),
             scenes$: path.resolve(__dirname, 'src/components/scenes'),
+            assets$: path.resolve(__dirname, 'assets'),
         },
     },
     plugins: [
