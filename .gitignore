@@ -104,7 +104,7 @@ dist
 .tern-port
 
 # tmp file
-assets/tmp
+# assets/tmp
 
 #pretrained models file from spleeter
 pretrained_models/
