@@ -57,7 +57,7 @@ let params = {
     play : function() {
         if(bass === undefined) {
             init_audio(listener);
-        }        
+        }     
         wait_init_and_play();
         return "success"
     },
@@ -73,7 +73,7 @@ let params = {
     play_other: function() {
         toggle_mute(other);
     },
-    file_name: "frank.mp3",
+    file_name: "",
     load: function() {
         init_audio(listener);
         wait_init_and_play();
@@ -99,19 +99,31 @@ let params = {
 
 };
 
-gui.add(params, 'play').name('play');
+// gui.add(params, 'toggle_play').name('play/pause');
 // gui.add(params, 'play_bass').name('toggle bass');
 // gui.add(params, 'play_drums').name('toggle drums');
 // gui.add(params, 'play_vocals').name('toggle vocals');
 // gui.add(params, 'play_other').name('toggle other');
 gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
-    var objReq = new XMLHttpRequest();
-    console.log("sending request")
-    objReq.open("GET", "http://localhost:8888" + "?filename=" + value, false);
-    objReq.send(null);
+    try {
+        play_all();
+        bass = undefined;
+        drums = undefined;
+        vocals = undefined;
+        other = undefined;
+        var objReq = new XMLHttpRequest();
+        console.log("sending request")
+        objReq.open("GET", "http://localhost:8888" + "?filename=" + value, false);
+        objReq.send(null);
+        location.reload();
+    }
+    catch {
+        location.reload();
+    }
+    
 });
 // gui.add(params, "load");
-gui.add(params, "toggle_sustain").name("toggle sustain (p)");
+gui.add(params, "toggle_sustain").name("toggle sustain (=)");
 
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
@@ -131,6 +143,9 @@ const controls = new PointerLockControls(camera, document.body);
 window.addEventListener('click', () => {
     if (controls.isLocked) controls.unlock();
     else controls.lock();
+
+    if (!bass) params.play();
+    else if (!bass.isPlaying) params.play();
 });
 scene.add(controls.getObject());
 
@@ -160,11 +175,11 @@ const onKeyDown = function(event) {
             moveRight = (true && vocals !== undefined);
             break;
         case 'Space':
-            if ( canJump === true && vocals !== undefined) velocity.y += 100;
+            if (canJump === true && vocals !== undefined) velocity.y += 100;
             canJump = false;
             break;
-        case 'KeyP':
-            params.toggle_sustain();
+        case 'Equal':
+            if (controls.isLocked) params.toggle_sustain();
     }
 };
 
@@ -210,8 +225,7 @@ const animate = (timeStamp) => {
 
     if(camera.position.x > 0 && camera.position.z > 0) {
         if(bass !== undefined){
-            if(bass.gain.gain.value == 0.0) {
-                console.log("bass")
+            if(bass.gain.gain.value == 0.0) {                
                 params.play_bass();
             }
         }
@@ -226,8 +240,7 @@ const animate = (timeStamp) => {
 
     if(camera.position.x > 0 && camera.position.z < 0) {
         if(drums !== undefined){
-            if(drums.gain.gain.value == 0.0) {
-                console.log("drums")
+            if(drums.gain.gain.value == 0.0) {                
                 params.play_drums();
             }
         }
@@ -242,8 +255,7 @@ const animate = (timeStamp) => {
 
     if(camera.position.x < 0 && camera.position.z > 0) {
         if(other !== undefined){
-            if(other.gain.gain.value == 0.0) {
-                console.log("other")
+            if(other.gain.gain.value == 0.0) {                
                 params.play_other();
             } 
         }       
@@ -257,8 +269,7 @@ const animate = (timeStamp) => {
 
     if(camera.position.x < 0 && camera.position.z < 0) {
         if(vocals !== undefined){
-            if(vocals.gain.gain.value == 0.0) {
-                console.log("vocals")
+            if(vocals.gain.gain.value == 0.0) {                
                 params.play_vocals();
             }  
         }
@@ -269,6 +280,7 @@ const animate = (timeStamp) => {
             }  
         }
     }
+    // in lake ADD CODE HERE
 
     // Get change in time from last frame
     const delta = clock.getDelta();
