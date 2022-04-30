@@ -1,6 +1,6 @@
 import * as Dat from 'dat.gui';
 import { Scene, Color, Vector3 } from 'three';
-import { Flower, Land, Tree, Rock, Bush, Cloud, Water } from 'objects';
+import { Flower, Land, Tree, Rock, Bush, Cloud, Water, Mountain } from 'objects';
 import { BasicLights } from 'lights';
 
 class SeedScene extends Scene {
@@ -49,7 +49,10 @@ class SeedScene extends Scene {
         const bush3 = new Bush(new Vector3(8, 0, 5), "snow");
         const bushes = [bush1, bush2, bush3];
 
-        this.add(land, flower, lights, ...trees, ...rocks, ...bushes, cloud, water);
+        // Add mountain
+        const mountain = new Mountain(new Vector3(400, 0, 400));
+
+        this.add(land, flower, lights, ...trees, ...rocks, ...bushes, cloud, water, mountain);
 
         // Populate GUI
         // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
