@@ -9,8 +9,8 @@ class Land extends Mesh {
         let depth = 600;
 
         // -----------
-        let floorGeometry = new PlaneBufferGeometry(width, depth, 200, 200);
-        floorGeometry.rotateX(-Math.PI / 2);
+        let floorGeometry = new PlaneBufferGeometry(width, depth, width / 3, depth / 3);
+        floorGeometry.rotateX(-Math.PI / 2); 
 
         // vertex displacement
 

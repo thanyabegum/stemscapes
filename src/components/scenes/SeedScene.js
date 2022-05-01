@@ -1,7 +1,8 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color, Vector3 } from 'three';
-import { Flower, Land, Tree, Rock, Bush, Cloud, Water } from 'objects';
+import { Scene, Color, Vector3, Fog } from 'three';
+import { Flower, Land, Tree, Rock, Bush, Cloud, Water, Zoha } from 'objects';
 import { BasicLights } from 'lights';
+import { random, round, pi, columnDependencies } from 'mathjs';
 
 class SeedScene extends Scene {
     constructor() {
@@ -15,8 +16,10 @@ class SeedScene extends Scene {
             updateList: [],
         };
 
-        // Set background to a nice color
-        this.background = new Color(0x7ec0ee);
+        // set background and fog color to same color
+        let fogColor = 0xb3ebff;
+        this.background = new Color(fogColor);
+        this.fog = new Fog(fogColor, 75, 400);
 
         //// Add meshes to scene
         const lights = new BasicLights();
@@ -28,20 +31,100 @@ class SeedScene extends Scene {
         let width = land.width;
         let depth = land.depth;
 
-        const flower = new Flower(this);
+        function getScale(factor, constant) {
+            return random() * factor + constant;
+        }
 
-        // Add trees
-        const tree1 = new Tree(this, new Vector3(-5, 0, 1), "fall");
-        const tree2 = new Tree(this, new Vector3(0, 0, 5), "pine snow");
-        const trees = [tree1, tree2];
+        function getX() {
+            return (random() * (width / 2 - 50)) + 25;
+        }
+
+        function getZ() {
+            return (random() * (width / 2 - 50)) + 25;
+        }
+
+        // tree scaling variables 
+        let factor = 6;
+        let constant = 2;
+
+        // Add summer trees
+        let trees = [];
+        for (let i = 0; i < 75; i++) {
+            let position = new Vector3(getX(), 0, getZ());
+            let type;
+            if (i < 25) type = "pine";
+            else type = "tree";
+
+            let tree = new Tree(this, position, type, getScale(factor, constant));
+
+            tree.castShadow = true;
+            tree.receiveShadow = true;
+            trees.push(tree);
+        }
+
+        // add fall trees
+        for (let i = 0; i < 75; i++) {
+            let position = new Vector3(-getX(), 0, getZ());
+            let type;
+            if (i < 25) type = "pine fall";
+            else type = "fall";
+
+            let tree = new Tree(this, position, type, getScale(factor, constant));
+
+            tree.castShadow = true;
+            tree.receiveShadow = true;
+            trees.push(tree);
+        }
+
+        // add spring trees
+        for (let i = 0; i < 75; i++) {
+            let position = new Vector3(getX(), 0, -getZ());
+            let type;
+            if (i < 25) type = "pine";
+            else type = "tree";
+
+            let tree = new Tree(this, position, type, getScale(factor, constant));
+
+            tree.castShadow = true;
+            tree.receiveShadow = true;
+            trees.push(tree);
+        }
+
+        // add winter trees
+        for (let i = 0; i < 75; i++) {
+            let position = new Vector3(-getX(), 0, -getZ());
+            let type;
+            if (i < 25) type = "tree";
+            else type = "pine snow";
+
+            let tree = new Tree(this, position, type, getScale(factor, constant));
+
+            tree.castShadow = true;
+            tree.receiveShadow = true;
+            trees.push(tree);
+        }
 
         // Add rocks
         const rock1 = new Rock(new Vector3(3, 0, 0));
         const rock2 = new Rock(new Vector3(5, 0, 0), "boulder");
         const rocks = [rock1, rock2];
 
-        // Add cloud
-        const cloud = new Cloud(new Vector3(0, 15, 0));
+        // Add clouds
+        let cloudHeight = 100;
+        factor = 4;
+        constant = -1;
+        let clouds = [];
+        for (let i = 0; i < 75; i++) {
+            let x = (random() * width) - (width / 2);
+            let z = (random() * depth) - (depth / 2);
+
+            // cloud height range of [90, 110]
+            let y = cloudHeight + (random() * 20 - 10);
+            let cloud = new Cloud(new Vector3(x, y, z), getScale(factor, constant));
+    
+            cloud.rotateY(pi * random());
+            clouds.push(cloud);
+        }
 
         // Add bushes
         const bush1 = new Bush(new Vector3(0, 0, 3));
@@ -49,10 +132,7 @@ class SeedScene extends Scene {
         const bush3 = new Bush(new Vector3(8, 0, 5), "snow");
         const bushes = [bush1, bush2, bush3];
 
-        this.add(land, flower, lights, ...trees, ...rocks, ...bushes, cloud, water);
-
-        // Populate GUI
-        // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+        this.add(land, lights, ...trees, ...rocks, ...bushes, ...clouds, water);
     }
 
     addToUpdateList(object) {

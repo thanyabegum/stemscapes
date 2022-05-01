@@ -7,7 +7,7 @@ import PINE_TREE_FALL from './pine-tree-fall.gltf';
 import PINE_TREE_SNOW from './pine-tree-snow.gltf';
 
 class Tree extends Group {
-    constructor(parent, position, type) {
+    constructor(parent, position, type, scale) {
         super();
 
         this.state = {
@@ -36,7 +36,8 @@ class Tree extends Group {
 
         loader.load(MODEL, (gltf) => {
             const model = gltf.scene;
-
+            // https://discourse.threejs.org/t/how-to-scale-a-gltf-animated-model/29453
+            gltf.scene.scale.set(scale, scale * 1.5, scale); 
             if (position !== undefined) model.position.copy(position);
             this.add(model);
 
@@ -52,7 +53,7 @@ class Tree extends Group {
                 // Add self to parent's update list
         parent.addToUpdateList(this);
 
-        this.state.gui.add(this.state, 'sway');
+        // this.state.gui.add(this.state, 'sway');
     }
 
     update(timeStamp) {
