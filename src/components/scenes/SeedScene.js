@@ -1,8 +1,8 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color, Vector3 } from 'three';
-import { Flower, Land, Tree, Rock, Bush, Cloud, Water, Mountain, Sign } from 'objects';
+import { Scene, Color, Vector3, Fog } from 'three';
+import { Land, Tree, Rock, Bush, Cloud, Water, Mountain, Sign } from 'objects';
 import { BasicLights } from 'lights';
-import { random, round, pi, columnDependencies } from 'mathjs';
+import { random, pi, columnDependencies } from 'mathjs';
 
 class SeedScene extends Scene {
     constructor() {
