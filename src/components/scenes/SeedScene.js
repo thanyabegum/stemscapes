@@ -1,8 +1,8 @@
 import * as Dat from 'dat.gui';
 import { Scene, Color, Vector3, Fog } from 'three';
-import { Land, Tree, Rock, Bush, Cloud, Water, Mountain, Sign } from 'objects';
+import { Land, Tree, Rock, Bush, Cloud, Water } from 'objects';
 import { BasicLights } from 'lights';
-import { random, pi, columnDependencies } from 'mathjs';
+import { random } from 'mathjs';
 
 class SeedScene extends Scene {
     constructor() {
@@ -12,7 +12,6 @@ class SeedScene extends Scene {
         // Init state
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
-            // rotationSpeed: 1,
             updateList: [],
         };
 
@@ -23,8 +22,9 @@ class SeedScene extends Scene {
 
         //// Add meshes to scene
         const lights = new BasicLights();
-        const water = new Water(this);
         const land = new Land();
+        const water = new Water(this);
+        this.add(lights, water, land);
 
         // for use by camera and music
         // width and depth of land plane
@@ -112,41 +112,28 @@ class SeedScene extends Scene {
         // Add clouds
         let cloudHeight = 100;
         factor = 4;
-        constant = -1;
-        let clouds = [];
-        for (let i = 0; i < 75; i++) {
+        constant = 0;
+        const clouds = [];
+        for (let i = 0; i < 175; i++) {
             let x = (random() * width) - (width / 2);
             let z = (random() * depth) - (depth / 2);
+            let y = cloudHeight + (random() * 20 - 10); // cloud height range of [90, 110]
 
-            // cloud height range of [90, 110]
-            let y = cloudHeight + (random() * 20 - 10);
-            let cloud = new Cloud(new Vector3(x, y, z), getScale(factor, constant));
-    
-            cloud.rotateY(pi * random());
+            let cloud = new Cloud(this, new Vector3(x, y, z), getScale(factor, constant));
             clouds.push(cloud);
         }
-
+        
         // Add bushes
         const bush1 = new Bush(new Vector3(0, 0, 3));
         const bush2 = new Bush(new Vector3(5, 0, 3), "berry");
         const bush3 = new Bush(new Vector3(8, 0, 5), "snow");
         const bushes = [bush1, bush2, bush3];
 
-        this.add(land, lights, ...trees, ...rocks, ...bushes, ...clouds, water);
+        this.add(...trees, ...rocks, ...bushes, ...clouds);
     }
 
     addToUpdateList(object) {
         this.state.updateList.push(object);
-    }
-
-    update(timeStamp) {
-        const { updateList } = this.state;
-        this.rotation.y = 0;
-
-        // Call update for each object in the updateList
-        for (const obj of updateList) {
-            obj.update(timeStamp);
-        }
     }
 }
 
