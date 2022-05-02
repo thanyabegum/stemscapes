@@ -1,70 +1,63 @@
-import { Color, Mesh, Vector3, TextureLoader, PlaneBufferGeometry, MeshBasicMaterial, Float32BufferAttribute } from 'three';
-import { abs, random, pow } from 'mathjs';
+import {
+    Color,
+    Mesh,
+    Vector3,
+    TextureLoader,
+    PlaneBufferGeometry,
+    MeshBasicMaterial,
+    Float32BufferAttribute,
+} from 'three';
 import GROUND_TEXTURE from '../../../../assets/textures/ground.png';
 
 class Land extends Mesh {
     constructor() {
+        const width = 600;
+        const depth = 600;
 
-        let width = 600;
-        let depth = 600;
-
-        // -----------
         let floorGeometry = new PlaneBufferGeometry(width, depth, width / 3, depth / 3);
-        floorGeometry.rotateX(-Math.PI / 2); 
+        floorGeometry.rotateX(-Math.PI / 2);
 
         // vertex displacement
-
         let position = floorGeometry.attributes.position;
-
-        let vertex = new Vector3();
+        const vertex = new Vector3();
         for (let i = 0, l = position.count; i < l; i++) {
-
             vertex.fromBufferAttribute(position, i);
-
-            vertex.y += random();
-
+            vertex.y += Math.random();
             position.setXYZ(i, vertex.x, vertex.y, vertex.z);
-
         }
 
-        floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
+        // ensure each face has unique vertices
+        floorGeometry = floorGeometry.toNonIndexed();
 
+        // color faces
         position = floorGeometry.attributes.position;
-        let colorsFloor = [];
-
-        let color = new Color();
+        const colorsFloor = [];
+        const color = new Color();
         for (let i = 0, l = position.count; i < l; i++) {
-            let gray = random() / 4 + 0.75;
+            const gray = Math.random() / 4 + 0.75;
             color.setRGB(gray, gray, gray);
             colorsFloor.push(color.r, color.g, color.b);
-
         }
-
         floorGeometry.setAttribute('color', new Float32BufferAttribute(colorsFloor, 3));
-        let texture = new TextureLoader().load(GROUND_TEXTURE);
+
+        // color quadrants using texture map
+        const texture = new TextureLoader().load(GROUND_TEXTURE);
         const floorMaterial = new MeshBasicMaterial({ vertexColors: true, map: texture });
 
-
+        // call parent constructor
         super(floorGeometry, floorMaterial);
-        // ------------
-
         this.name = 'terrain';
         this.width = width;
         this.depth = depth;
 
         // create divot for pond
         for (let i = 0, l = position.count; i < l; i++) {
-
             vertex.fromBufferAttribute(position, i);
-
-            if (abs(vertex.x) < 10 && abs(vertex.z) < 10) {
-                vertex.y = (pow(vertex.x, 2) / 10) + (pow(vertex.z, 2) / 10) - 16;
+            if (Math.abs(vertex.x) < 10 && Math.abs(vertex.z) < 10) {
+                vertex.y = Math.pow(vertex.x, 2) / 10 + Math.pow(vertex.z, 2) / 10 - 16;
             }
-
             position.setXYZ(i, vertex.x, vertex.y, vertex.z);
-
         }
-
     }
 }
 

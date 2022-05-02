@@ -1,15 +1,11 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color, Vector3, Fog } from 'three';
-import { Land, Tree, Rock, Bush, Cloud, Water, Mountain } from 'objects';
+import { Scene, Color, Vector3, Fog, Euler } from 'three';
+import { Land, Water, Tree, Rock, Bush, Cloud, Mountain } from 'objects';
 import { BasicLights } from 'lights';
-import { random } from 'mathjs';
 
 class SeedScene extends Scene {
     constructor() {
-        // Call parent Scene() constructor
         super();
-
-        // Init state
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
             updateList: [],
@@ -24,191 +20,111 @@ class SeedScene extends Scene {
         const lights = new BasicLights();
         const land = new Land();
         const water = new Water(this);
-        this.add(lights, water, land);
 
         // for use by camera and music
         // width and depth of land plane
         let width = land.width;
         let depth = land.depth;
 
-        function getScale(factor, constant) {
-            return random() * factor + constant;
-        }
+        // Constants
+        const NUM_OF_TREES = 75; // per quadrant
+        const NUM_OF_ROCKS = 15; // per quadrant
+        const NUM_OF_CLOUDS = 125;
+        const NUM_OF_BUSHES = 25; // per quadrant
+        const QMAX = (width / 2) - 50; // max extent of a quadrant
+        const DMAX = (depth / 2) - 50; // max depth of a quadrant
+        const CHEIGHT = 120; // cloud height
+        const RHEIGHT = 1; // rock height
+        const BHEIGHT = 1; // bush height
+        const MBUFFER = 130; // how far the mountains are from the pond
+        const MGAP = 100; // gap between mountain instances
 
-        function getX() {
-            return (random() * (width / 2 - 75) + 25);
-        }
+        // Helper function for getting random number within [min, max)
+        function rand(min, max) { return Math.random() * (max - min) + min }
 
-        function getZ() {
-            return (random() * (depth / 2 - 75) + 25);
-        }
+        // Helper function for getting random Euler rotation along y-axis
+        function randYRot() { return new Euler(0, rand(0, Math.PI * 2)) }
 
-        // tree scaling variables 
-        let factor = 6;
-        let constant = 2;
-
-        // Add summer trees
+        // Add trees
         let trees = [];
-        for (let i = 0; i < 75; i++) {
-            let position = new Vector3(getX(), 0, getZ());
-            let type;
-            if (i < 25) type = "pine";
-            else type = "tree";
+        for (let i = 0; i < NUM_OF_TREES; i++) {
+            const summerPos = new Vector3(rand(25, QMAX), 0, rand(25, DMAX));
+            const fallPos = new Vector3(-rand(25, QMAX), 0, rand(25, DMAX));
+            const springPos = new Vector3(rand(25, QMAX), 0, -rand(25, DMAX));
+            const winterPos = new Vector3(-rand(25, QMAX), 0, -rand(25, DMAX));
 
-            let tree = new Tree(this, position, type, getScale(factor, constant));
-
-            tree.castShadow = true;
-            tree.receiveShadow = true;
-            trees.push(tree);
-        }
-
-        // add fall trees
-        for (let i = 0; i < 75; i++) {
-            let position = new Vector3(-getX(), 0, getZ());
-            let type;
-            if (i < 25) type = "pine fall";
-            else type = "fall";
-
-            let tree = new Tree(this, position, type, getScale(factor, constant));
-
-            tree.castShadow = true;
-            tree.receiveShadow = true;
-            trees.push(tree);
-        }
-
-        // add spring trees
-        for (let i = 0; i < 75; i++) {
-            let position = new Vector3(getX(), 0, -getZ());
-            let type;
-            if (i < 25) type = "pine";
-            else type = "tree";
-
-            let tree = new Tree(this, position, type, getScale(factor, constant));
-
-            tree.castShadow = true;
-            tree.receiveShadow = true;
-            trees.push(tree);
-        }
-
-        // add winter trees
-        for (let i = 0; i < 75; i++) {
-            let position = new Vector3(-getX(), 0, -getZ());
-            let type;
-            if (i < 25) type = "tree";
-            else type = "pine snow";
-
-            let tree = new Tree(this, position, type, getScale(factor, constant));
-
-            tree.castShadow = true;
-            tree.receiveShadow = true;
-            trees.push(tree);
+            if (i < NUM_OF_TREES / 3) {
+                trees.push(new Tree(this, summerPos, "pine", rand(2, 8), randYRot()));
+                trees.push(new Tree(this, fallPos, "pine fall", rand(2, 8), randYRot()));
+                trees.push(new Tree(this, springPos, "pine", rand(2, 8), randYRot()));
+                trees.push(new Tree(this, winterPos, "tree", rand(2, 8), randYRot()));
+            } else {
+                trees.push(new Tree(this, summerPos, "tree", rand(2, 8), randYRot()));
+                trees.push(new Tree(this, fallPos, "fall", rand(2, 8), randYRot()));
+                trees.push(new Tree(this, springPos, "tree", rand(2, 8), randYRot()));
+                trees.push(new Tree(this, winterPos, "pine snow", rand(2, 8), randYRot()));
+            }
         }
 
         // Add rocks
         let rocks = [];
-        let rockHeight = 1;
-        factor = 4;
-        constant = 2;
-        for (let i = 0; i < 25; i++) {
-            let position1 = new Vector3(getX(), rockHeight, getZ());
-            let position2 = new Vector3(getX(), rockHeight, -getZ());
-            let position3 = new Vector3(-getX(), rockHeight, -getZ());
-            let position4 = new Vector3(-getX(), rockHeight, getZ());
+        for (let i = 0; i < Math.round(NUM_OF_ROCKS * 5 / 3); i++) {
+            let summerPos = new Vector3(rand(25, QMAX), RHEIGHT, rand(25, DMAX));
+            let springPos = new Vector3(rand(25, QMAX), RHEIGHT, -rand(25, DMAX));
+            let winterPos = new Vector3(-rand(25, QMAX), RHEIGHT, -rand(25, DMAX));
+            let fallPos = new Vector3(-rand(25, QMAX), RHEIGHT, rand(25, DMAX));
 
-            let type = "multiple";
-            let rock1 = new Rock(position1, type, getScale(factor, constant));
-            let rock2 = new Rock(position2, type, getScale(factor, constant));
-            let rock3 = new Rock(position3, type, getScale(factor, constant));
-            let rock4 = new Rock(position4, type, getScale(factor, constant));
+            rocks.push(new Rock(summerPos, "multiple", rand(2, 6), randYRot()));
+            rocks.push(new Rock(springPos, "multiple", rand(2, 6), randYRot()));
+            rocks.push(new Rock(winterPos, "multiple", rand(2, 6), randYRot()));
+            rocks.push(new Rock(fallPos, "multiple", rand(2, 6), randYRot()));
 
-            rocks.push(rock1, rock2, rock3, rock4);
-        }
-        for (let i = 0; i < 15; i++) {
-            let position = new Vector3(getX(), rockHeight, getZ());
-            let type = "moss";
-            let rock = new Rock(position, type, getScale(factor, constant));
-
-            rocks.push(rock);
-        }
-        for (let i = 0; i < 15; i++) {
-            let position = new Vector3(-getX(), rockHeight, -getZ());
-            let type = "snow";
-            let rock = new Rock(position, type, getScale(factor, constant));
-
-            rocks.push(rock);
-        }
-        for (let i = 0; i < 15; i++) {
-            let position = new Vector3(-getX(), rockHeight, getZ());
-            let type = "boulder";
-            let rock = new Rock(position, type, getScale(factor, constant));
-
-            rocks.push(rock);
-        }
-        for (let i = 0; i < 15; i++) {
-            let position = new Vector3(getX(), rockHeight, -getZ());
-            let type = "rock";
-            let rock = new Rock(position, type, getScale(factor, constant));
-
-            rocks.push(rock);
+            if (i < NUM_OF_ROCKS) {
+                summerPos = new Vector3(rand(25, QMAX), RHEIGHT, rand(25, DMAX));
+                winterPos = new Vector3(-rand(25, QMAX), RHEIGHT, -rand(25, DMAX));
+                fallPos = new Vector3(-rand(25, QMAX), RHEIGHT, rand(25, DMAX));
+                springPos = new Vector3(rand(25, QMAX), RHEIGHT, -rand(25, DMAX));
+    
+                rocks.push(new Rock(summerPos, "moss", rand(2, 6), randYRot()));
+                rocks.push(new Rock(winterPos, "snow", rand(2, 6), randYRot()));
+                rocks.push(new Rock(fallPos, "boulder", rand(2, 6), randYRot()));
+                rocks.push(new Rock(springPos, "rock", rand(2, 6), randYRot()));
+            }
         }
 
         // Add clouds
-        let cloudHeight = 100;
-        factor = 4;
-        constant = 0;
         const clouds = [];
-        for (let i = 0; i < 175; i++) {
-            let x = (random() * width) - (width / 2);
-            let z = (random() * depth) - (depth / 2);
-            let y = cloudHeight + (random() * 20 - 10); // cloud height range of [90, 110]
-
-            let cloud = new Cloud(this, new Vector3(x, y, z), getScale(factor, constant));
-            clouds.push(cloud);
+        for (let i = 0; i < NUM_OF_CLOUDS; i++) {
+            const x = rand(-width / 2, width / 2);
+            const y = rand(CHEIGHT - 10, CHEIGHT + 10);
+            const z = rand(-depth / 2, depth / 2);
+            clouds.push(new Cloud(this, new Vector3(x, y, z), rand(0, 4)));
         }
         
         // Add bushes
-        let bushes = [];
-        let bushHeight = 1;
-        factor = 4;
-        constant = 2;
-        for (let i = 0; i < 25; i++) {
-            let position = new Vector3(getX(), bushHeight, -getZ());
-            let type = "berry";
-            let bush = new Bush(position, type, getScale(factor, constant));
-            bushes.push(bush)
-        }
-        for (let i = 0; i < 25; i++) {
-            let position = new Vector3(-getX(), bushHeight, -getZ());
-            let type = "snow";
-            let bush = new Bush(position, type, getScale(factor, constant));
-            bushes.push(bush)
-        }
-        for (let i = 0; i < 25; i++) {
-            let position = new Vector3(getX(), bushHeight, getZ());
-            let type = "bush";
-            let bush = new Bush(position, type, getScale(factor, constant));
-            bushes.push(bush)
+        const bushes = [];
+        for (let i = 0; i < NUM_OF_BUSHES; i++) {
+            const springPos = new Vector3(rand(25, QMAX), BHEIGHT, -rand(25, DMAX));
+            const winterPos = new Vector3(-rand(25, QMAX), BHEIGHT, -rand(25, DMAX));
+            const summerPos = new Vector3(rand(25, QMAX), BHEIGHT, rand(25, DMAX));
+
+            bushes.push(new Bush(springPos, "berry", rand(2, 6), randYRot()));
+            bushes.push(new Bush(winterPos, "snow", rand(2, 6), randYRot()));
+            bushes.push(new Bush(summerPos, "bush", rand(2, 6), randYRot()));
         }
 
-        // add mountains 
-        let mountains = [];
-        let buffer = 150;
-        let hFactor = 100;
-        let hConst = -75;
-        function randHeight(hFactor, hConst) {
-            return random() * hFactor + hConst;
+        // Add mountains 
+        const mountains = [];
+        for (let i = -width / 2 - MBUFFER; i <= width / 2 + MBUFFER; i += MGAP) {
+            mountains.push(new Mountain(new Vector3(i, rand(-75, 25), depth / 2 + MBUFFER)));
+            mountains.push(new Mountain(new Vector3(i, rand(-75, 25), -depth / 2 - MBUFFER)));
         }
-        
-        for (let i = -width / 2 - buffer; i <= width / 2 + buffer; i += 150) {
-            mountains.push(new Mountain(new Vector3(i, randHeight(hFactor, hConst), depth / 2 + buffer)));
-            mountains.push(new Mountain(new Vector3(i, randHeight(hFactor, hConst), -depth / 2 - buffer)));
-        }
-        for (let i = -depth / 2 + buffer; i <= depth / 2 - buffer; i += 150) {
-            mountains.push(new Mountain(new Vector3(width / 2 + buffer, randHeight(hFactor, hConst), i)));
-            mountains.push(new Mountain(new Vector3(-width / 2 - buffer, randHeight(hFactor, hConst), i)));
+        for (let i = -depth / 2 + MBUFFER; i <= depth / 2 - MBUFFER; i += MGAP) {
+            mountains.push(new Mountain(new Vector3(width / 2 + MBUFFER, rand(-75, 25), i)));
+            mountains.push(new Mountain(new Vector3(-width / 2 - MBUFFER, rand(-75, 25), i)));
         }
 
-        this.add(land, lights, ...trees, ...rocks, ...bushes, ...clouds, ...mountains, water);
+        this.add(lights, land, water, ...trees, ...rocks, ...bushes, ...clouds, ...mountains);
     }
 
     addToUpdateList(object) {

@@ -5,9 +5,6 @@ import MODEL from './cloud.gltf';
 class Cloud extends Group {
     constructor(parent, position = new Vector3(), scaleFactor = 1, euler = new Euler()) {
         super();
-
-        const loader = new GLTFLoader();
-
         this.name = 'cloud';
 
         // Setup tranformation matrix
@@ -15,7 +12,8 @@ class Cloud extends Group {
         const rotate = new Quaternion().setFromEuler(euler);
         const transform = new Matrix4().compose(position, rotate, scale);
 
-        // Load object
+        // Load model
+        const loader = new GLTFLoader();
         loader.load(MODEL, (gltf) => {
             gltf.scene.applyMatrix4(transform);
             this.add(gltf.scene);
