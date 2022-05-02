@@ -5,7 +5,7 @@ import BUSH_SNOW from './bush-snow.gltf';
 import BUSH_BERRY from './bush-berry.gltf';
 
 class Bush extends Group {
-    constructor(position, type) {
+    constructor(position, type, scale) {
         super();
 
         const loader = new GLTFLoader();
@@ -22,6 +22,7 @@ class Bush extends Group {
         }
 
         loader.load(MODEL, (gltf) => {
+            gltf.scene.scale.set(scale, scale, scale); 
             if (position !== undefined) gltf.scene.position.copy(position);
             this.add(gltf.scene);
         });

@@ -7,7 +7,7 @@ import ROCK_MOSS from './rock-moss.gltf';
 import BOULDER from './boulder.gltf';
 
 class Rock extends Group {
-    constructor(position, type) {
+    constructor(position, type, scale) {
         super();
 
         const loader = new GLTFLoader();
@@ -30,6 +30,7 @@ class Rock extends Group {
         }
 
         loader.load(MODEL, (gltf) => {
+            gltf.scene.scale.set(scale, scale, scale); 
             if (position !== undefined) gltf.scene.position.copy(position);
             this.add(gltf.scene);
         });

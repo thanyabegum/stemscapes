@@ -1,6 +1,6 @@
 import * as Dat from 'dat.gui';
 import { Scene, Color, Vector3, Fog } from 'three';
-import { Land, Tree, Rock, Bush, Cloud, Water } from 'objects';
+import { Land, Tree, Rock, Bush, Cloud, Water, Mountain } from 'objects';
 import { BasicLights } from 'lights';
 import { random } from 'mathjs';
 
@@ -36,11 +36,11 @@ class SeedScene extends Scene {
         }
 
         function getX() {
-            return (random() * (width / 2 - 50)) + 25;
+            return (random() * (width / 2 - 75) + 25);
         }
 
         function getZ() {
-            return (random() * (width / 2 - 50)) + 25;
+            return (random() * (depth / 2 - 75) + 25);
         }
 
         // tree scaling variables 
@@ -105,9 +105,52 @@ class SeedScene extends Scene {
         }
 
         // Add rocks
-        const rock1 = new Rock(new Vector3(3, 0, 0));
-        const rock2 = new Rock(new Vector3(5, 0, 0), "boulder");
-        const rocks = [rock1, rock2];
+        let rocks = [];
+        let rockHeight = 1;
+        factor = 4;
+        constant = 2;
+        for (let i = 0; i < 25; i++) {
+            let position1 = new Vector3(getX(), rockHeight, getZ());
+            let position2 = new Vector3(getX(), rockHeight, -getZ());
+            let position3 = new Vector3(-getX(), rockHeight, -getZ());
+            let position4 = new Vector3(-getX(), rockHeight, getZ());
+
+            let type = "multiple";
+            let rock1 = new Rock(position1, type, getScale(factor, constant));
+            let rock2 = new Rock(position2, type, getScale(factor, constant));
+            let rock3 = new Rock(position3, type, getScale(factor, constant));
+            let rock4 = new Rock(position4, type, getScale(factor, constant));
+
+            rocks.push(rock1, rock2, rock3, rock4);
+        }
+        for (let i = 0; i < 15; i++) {
+            let position = new Vector3(getX(), rockHeight, getZ());
+            let type = "moss";
+            let rock = new Rock(position, type, getScale(factor, constant));
+
+            rocks.push(rock);
+        }
+        for (let i = 0; i < 15; i++) {
+            let position = new Vector3(-getX(), rockHeight, -getZ());
+            let type = "snow";
+            let rock = new Rock(position, type, getScale(factor, constant));
+
+            rocks.push(rock);
+        }
+        for (let i = 0; i < 15; i++) {
+            let position = new Vector3(-getX(), rockHeight, getZ());
+            let type = "boulder";
+            let rock = new Rock(position, type, getScale(factor, constant));
+
+            rocks.push(rock);
+        }
+        for (let i = 0; i < 15; i++) {
+            let position = new Vector3(getX(), rockHeight, -getZ());
+            let type = "rock";
+            let rock = new Rock(position, type, getScale(factor, constant));
+
+            rocks.push(rock);
+        }
 
         // Add clouds
         let cloudHeight = 100;
@@ -124,12 +167,48 @@ class SeedScene extends Scene {
         }
         
         // Add bushes
-        const bush1 = new Bush(new Vector3(0, 0, 3));
-        const bush2 = new Bush(new Vector3(5, 0, 3), "berry");
-        const bush3 = new Bush(new Vector3(8, 0, 5), "snow");
-        const bushes = [bush1, bush2, bush3];
+        let bushes = [];
+        let bushHeight = 1;
+        factor = 4;
+        constant = 2;
+        for (let i = 0; i < 25; i++) {
+            let position = new Vector3(getX(), bushHeight, -getZ());
+            let type = "berry";
+            let bush = new Bush(position, type, getScale(factor, constant));
+            bushes.push(bush)
+        }
+        for (let i = 0; i < 25; i++) {
+            let position = new Vector3(-getX(), bushHeight, -getZ());
+            let type = "snow";
+            let bush = new Bush(position, type, getScale(factor, constant));
+            bushes.push(bush)
+        }
+        for (let i = 0; i < 25; i++) {
+            let position = new Vector3(getX(), bushHeight, getZ());
+            let type = "bush";
+            let bush = new Bush(position, type, getScale(factor, constant));
+            bushes.push(bush)
+        }
 
-        this.add(...trees, ...rocks, ...bushes, ...clouds);
+        // add mountains 
+        let mountains = [];
+        let buffer = 150;
+        let hFactor = 100;
+        let hConst = -75;
+        function randHeight(hFactor, hConst) {
+            return random() * hFactor + hConst;
+        }
+        
+        for (let i = -width / 2 - buffer; i <= width / 2 + buffer; i += 150) {
+            mountains.push(new Mountain(new Vector3(i, randHeight(hFactor, hConst), depth / 2 + buffer)));
+            mountains.push(new Mountain(new Vector3(i, randHeight(hFactor, hConst), -depth / 2 - buffer)));
+        }
+        for (let i = -depth / 2 + buffer; i <= depth / 2 - buffer; i += 150) {
+            mountains.push(new Mountain(new Vector3(width / 2 + buffer, randHeight(hFactor, hConst), i)));
+            mountains.push(new Mountain(new Vector3(-width / 2 - buffer, randHeight(hFactor, hConst), i)));
+        }
+
+        this.add(land, lights, ...trees, ...rocks, ...bushes, ...clouds, ...mountains, water);
     }
 
     addToUpdateList(object) {
