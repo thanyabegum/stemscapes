@@ -4,8 +4,8 @@ import {
     Vector3,
     TextureLoader,
     PlaneBufferGeometry,
-    MeshBasicMaterial,
     Float32BufferAttribute,
+    MeshLambertMaterial,
 } from 'three';
 import GROUND_TEXTURE from '../../../../assets/textures/ground.png';
 
@@ -42,7 +42,7 @@ class Land extends Mesh {
 
         // color quadrants using texture map
         const texture = new TextureLoader().load(GROUND_TEXTURE);
-        const floorMaterial = new MeshBasicMaterial({ vertexColors: true, map: texture });
+        const floorMaterial = new MeshLambertMaterial({ vertexColors: true, map: texture });
 
         // call parent constructor
         super(floorGeometry, floorMaterial);
@@ -58,6 +58,8 @@ class Land extends Mesh {
             }
             position.setXYZ(i, vertex.x, vertex.y, vertex.z);
         }
+
+        this.receiveShadow = true;
     }
 }
 

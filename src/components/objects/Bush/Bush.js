@@ -29,6 +29,13 @@ class Bush extends Group {
         loader.load(MODEL, (gltf) => {
             gltf.scene.applyMatrix4(transform);
             this.add(gltf.scene);
+
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
         });
     }
 }

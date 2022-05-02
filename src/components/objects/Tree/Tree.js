@@ -36,7 +36,13 @@ class Tree extends Group {
         const loader = new GLTFLoader();
         loader.load(MODEL, (gltf) => {
             gltf.scene.applyMatrix4(transform);
+            this.castShadow = true;
+            this.receiveShadow = true;
             this.add(gltf.scene);
+
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) child.castShadow = true;
+            });
 
             if (gltf.animations.length != 0) {
                 const mixer = new AnimationMixer(gltf.scene);

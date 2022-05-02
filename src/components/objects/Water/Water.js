@@ -39,7 +39,7 @@ class Water extends Mesh {
 
         new_geo.computeFaceNormals();
         new_geo.dynamic = true;
-        let new_mat = new MeshPhongMaterial({ color: 0x213c4a });
+        let new_mat = new MeshPhongMaterial({ color: 0x75AEDC });
         new_mat.flatShading = true;
 
         super(new_geo, new_mat);
