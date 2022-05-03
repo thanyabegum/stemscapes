@@ -1,17 +1,20 @@
-import { Group } from 'three';
+import { Euler, Group, Matrix4, Quaternion, Vector3 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import BUSH from './bush.gltf';
 import BUSH_SNOW from './bush-snow.gltf';
 import BUSH_BERRY from './bush-berry.gltf';
 
 class Bush extends Group {
-    constructor(position, type) {
+    constructor(position = new Vector3(), type, scaleFactor = 1, euler = new Euler()) {
         super();
-
-        const loader = new GLTFLoader();
-
         this.name = 'bush';
 
+        // Setup tranformation matrix
+        const scale = new Vector3().setScalar(scaleFactor);
+        const rotate = new Quaternion().setFromEuler(euler);
+        const transform = new Matrix4().compose(position, rotate, scale);
+
+        // Get specific GLTF file based on provided type
         let MODEL = BUSH;
         switch (type) {
             case "berry":
@@ -21,9 +24,18 @@ class Bush extends Group {
                 MODEL = BUSH_SNOW;
         }
 
+        // Load model
+        const loader = new GLTFLoader();
         loader.load(MODEL, (gltf) => {
-            if (position !== undefined) gltf.scene.position.copy(position);
+            gltf.scene.applyMatrix4(transform);
             this.add(gltf.scene);
+
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
         });
     }
 }

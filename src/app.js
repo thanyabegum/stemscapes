@@ -6,19 +6,19 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector3, ColorKeyframeTrack, Audio, Color } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { WebGLRenderer, PerspectiveCamera, Clock } from 'three';
+import * as THREE from 'three';
 import { SeedScene } from 'scenes';
 import { init_audio, toggle_mute, play_all, get_sounds } from './audio';
 
-import * as THREE from 'three'
 import * as Dat from 'dat.gui'; //testoresto
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { ResultSetDependencies } from 'mathjs';
 
 // Initialize core ThreeJS components
+const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1250);
+const clock = new Clock();
 const scene = new SeedScene();
-const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000 );
 const renderer = new WebGLRenderer({ antialias: true });
 const listener = new THREE.AudioListener();
 camera.add( listener ); 
@@ -134,10 +134,13 @@ let raycaster;
 // Set up camera
 //camera.position.set(75, window.innerWidth / window.innerHeight, 1, 1000 );
 camera.position.set(0, 0, 0);
-camera.position.y = 1;
+// Set up camera initial position
+const CAMERA_HEIGHT = 6;
+camera.position.y = CAMERA_HEIGHT;
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true;
 const canvas = renderer.domElement;
 canvas.style.display = 'block'; // Removes padding below canvas
 document.body.style.margin = 0; // Removes margin around page
@@ -149,7 +152,8 @@ const controls = new PointerLockControls( camera, document.body );
 
 window.addEventListener( 'click', function () {
 
-    controls.lock();
+    if (controls.isLocked) controls.unlock();
+    else controls.lock();
     if(!bass) params.play();
     else if(!bass.isPlaying) params.play();
 
@@ -157,6 +161,7 @@ window.addEventListener( 'click', function () {
 
 scene.add( controls.getObject() );
 
+// Bind key strokes with camera movement
 let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
@@ -164,8 +169,6 @@ let moveRight = false;
 let canJump = false;
 
 let prevTime = performance.now();
-const velocity = new THREE.Vector3();
-const direction = new THREE.Vector3();
 
 const onKeyDown = function ( event ) {    
     switch ( event.code ) {        
@@ -173,24 +176,20 @@ const onKeyDown = function ( event ) {
         case 'KeyW':
             moveForward = (true && vocals !== undefined);
             break;
-
         case 'ArrowLeft':
         case 'KeyA':
             moveLeft = (true && vocals !== undefined);
             break;
-
         case 'ArrowDown':
         case 'KeyS':
             moveBackward = (true && vocals !== undefined);
             break;
-
         case 'ArrowRight':
         case 'KeyD':
             moveRight = (true && vocals !== undefined);
             break;
-
         case 'Space':
-            if ( canJump === true && vocals !== undefined) velocity.y += 350;
+            if (canJump === true && vocals !== undefined) velocity.y += 100;
             canJump = false;
             break;
 
@@ -199,46 +198,59 @@ const onKeyDown = function ( event ) {
             break;
 
     }
-
 };
 
-const onKeyUp = function ( event ) {
-
-    switch ( event.code ) {
-
+const onKeyUp = function (event) {
+    switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
             moveForward = false;
             break;
-
         case 'ArrowLeft':
         case 'KeyA':
             moveLeft = false;
             break;
-
         case 'ArrowDown':
         case 'KeyS':
             moveBackward = false;
             break;
-
         case 'ArrowRight':
         case 'KeyD':
             moveRight = false;
-            break;
-
     }
-
 };
 
-document.addEventListener( 'keydown', onKeyDown );
-document.addEventListener( 'keyup', onKeyUp );
+document.addEventListener('keydown', onKeyDown);
+document.addEventListener('keyup', onKeyUp);
 
+// Resize Handler
+const onWindowResize = () => {
+    const { innerHeight, innerWidth } = window;
+    renderer.setSize(innerWidth, innerHeight);
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+};
+onWindowResize();
+window.addEventListener('resize', onWindowResize, false);
 
 // Render loop
-const onAnimationFrameHandler = (timeStamp) => {
-    scene.update && scene.update(timeStamp);
-    window.requestAnimationFrame(onAnimationFrameHandler);
-    //different quadrants
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
+
+const animate = (timeStamp) => {
+    requestAnimationFrame(animate);
+
+    // Get change in time from last frame
+    const delta = clock.getDelta();
+
+    // Call update for each object in the updateList
+    for (const obj of scene.state.updateList) {
+        // Some animations rely on the current time (timeStamp)
+        if (obj.name === "pond" || obj.name === "flower") obj.update(timeStamp);
+        else obj.update(delta); // others rely on the change in time (delta)
+    }
+
+    // music controls
     if(camera.position.x > 0 && camera.position.z > 0) {
         if(bass !== undefined){
             if(bass.gain.gain.value == 0.0) {                
@@ -297,51 +309,30 @@ const onAnimationFrameHandler = (timeStamp) => {
             }  
         }
     }
-    // in lake ADD CODE HERE
-
-    const time = performance.now();
-    if ( controls.isLocked === true ) {
-
-        const delta = ( time - prevTime ) / 1000;
-
+    // Update camera position
+    if (controls.isLocked) {
         velocity.x -= velocity.x * 10.0 * delta;
         velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y -= 9.8 * 50.0 * delta; // 100.0 = mass
 
-        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-
-        direction.z = Number( moveForward ) - Number( moveBackward );
-        direction.x = Number( moveRight ) - Number( moveLeft );
+        direction.z = Number(moveForward) - Number(moveBackward);
+        direction.x = Number(moveRight) - Number(moveLeft);
         direction.normalize(); // this ensures consistent movements in all directions
 
-        if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-        if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+        if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
 
-        controls.moveRight( - velocity.x * delta );
-        controls.moveForward( - velocity.z * delta );
+        controls.moveRight(-velocity.x * delta);
+        controls.moveForward(-velocity.z * delta);
+        controls.getObject().position.y += (velocity.y * delta); // new behavior
 
-        controls.getObject().position.y += ( velocity.y * delta ); // new behavior
-
-        if ( controls.getObject().position.y < 10 ) {
-
+        if (controls.getObject().position.y < CAMERA_HEIGHT) {
             velocity.y = 0;
-            controls.getObject().position.y = 10;
-
+            controls.getObject().position.y = CAMERA_HEIGHT;
             canJump = true;
-
         }
     }
-    prevTime = time;
 
     renderer.render(scene, camera);
 };
-window.requestAnimationFrame(onAnimationFrameHandler);
-
-// Resize Handler
-const windowResizeHandler = () => {
-    const { innerHeight, innerWidth } = window;
-    renderer.setSize(innerWidth, innerHeight);
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-};
-windowResizeHandler();
-window.addEventListener('resize', windowResizeHandler, false);
+animate();

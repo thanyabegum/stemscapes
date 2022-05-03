@@ -1,14 +1,14 @@
 import { Group } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import MODEL from './zoha.gltf';
+import MODEL from './sign.gltf';
 
-class Zoha extends Group {
+class Sign extends Group {
     constructor(position) {
         super();
 
         const loader = new GLTFLoader();
 
-        this.name = 'zoha';
+        this.name = 'sign';
 
         loader.load(MODEL, (gltf) => {
             if (position !== undefined) gltf.scene.position.copy(position);
@@ -24,4 +24,4 @@ class Zoha extends Group {
     }
 }
 
-export default Zoha;
+export default Sign;

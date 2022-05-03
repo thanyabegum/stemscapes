@@ -1,7 +1,4 @@
-import { Mesh, MeshPhongMaterial, Geometry, Vector3, Face3, Color } from 'three';
-import { cos } from 'mathjs';
-import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
-
+import { Mesh, MeshPhongMaterial, Geometry, Vector3, Face3 } from 'three';
 
 class Water extends Mesh {
     constructor(parent) {
@@ -20,7 +17,7 @@ class Water extends Mesh {
             for (let x = 0; x < width; x++) {
                 let vertex = new Vector3(
                     x * spacingX,
-                    (cos(x * wave_freq) + cos(z * wave_freq)) / wave_scale - height_adj,
+                    (Math.cos(x * wave_freq) + Math.cos(z * wave_freq)) / wave_scale - height_adj,
                     z * spacingZ);
                 new_geo.vertices.push(vertex);
             }
@@ -42,13 +39,9 @@ class Water extends Mesh {
 
         new_geo.computeFaceNormals();
         new_geo.dynamic = true;
-        // new_geo.verticesNeedUpdate = true;
-        let new_mat = new MeshPhongMaterial({ color: 0x5497ba });
+        let new_mat = new MeshPhongMaterial({ color: 0x75AEDC });
         new_mat.flatShading = true;
-        // new_mat.shininess = 0;
-        // new_mat.specular = new Color(0x000000);
 
-        // Call parent Mesh() constructor
         super(new_geo, new_mat);
         this.translateX(-width / 2);
         this.translateZ(-depth / 2);
@@ -57,7 +50,6 @@ class Water extends Mesh {
         this.height_adj = height_adj;
         this.wave_freq = wave_freq;
 
-        // Add self to parent's update list
         parent.addToUpdateList(this);
     }
 
@@ -66,15 +58,12 @@ class Water extends Mesh {
         let n = this.geometry.vertices.length;
         for (let i = 0; i < n; i++) {
             let vec = this.geometry.vertices[i];
-            let x_corr = cos((vec.x + timeStamp) * this.wave_freq);
-            let z_corr = cos((vec.z + timeStamp) * this.wave_freq);
+            let x_corr = Math.cos((vec.x + timeStamp) * this.wave_freq);
+            let z_corr = Math.cos((vec.z + timeStamp) * this.wave_freq);
             vec.setY((x_corr + z_corr) / this.wave_scale - this.height_adj);
             this.geometry.__dirtyVertices = true;
             this.geometry.verticesNeedUpdate = true;
         }
-
-        // Advance tween animations, if any exist
-        TWEEN.update();
     }
 }
 

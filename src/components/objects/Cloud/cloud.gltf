@@ -15,7 +15,7 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Node",
+            "name" : "Cloud",
             "scale" : [
                 50.429588317871094,
                 50.429588317871094,
@@ -33,7 +33,7 @@
     ],
     "meshes" : [
         {
-            "name" : "Node-Mesh",
+            "name" : "Cloud",
             "primitives" : [
                 {
                     "attributes" : {
