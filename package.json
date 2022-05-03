@@ -42,7 +42,7 @@
     "webpack-dev-server": "^3.10.3"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": "v17.6.0"
   },
   "browser": {
     "child_process": false

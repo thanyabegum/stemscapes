@@ -104,7 +104,13 @@ dist
 .tern-port
 
 # tmp file
-# assets/tmp
+assets/tmp
+
+# python env stuff
+bin/
+include/
+lib/
+pyvenv.cfg
 
 #pretrained models file from spleeter
 pretrained_models/

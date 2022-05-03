@@ -117,13 +117,14 @@ gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
         objReq.send(null);
         location.reload();
     }
-    catch {
+    catch(error) {
         location.reload();
+        console.log(error)
     }
     
 });
 // gui.add(params, "load");
-gui.add(params, "toggle_sustain").name("toggle sustain (=)");
+gui.add(params, "toggle_sustain").name("sustain (=)");
 
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
