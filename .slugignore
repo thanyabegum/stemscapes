@@ -112,7 +112,6 @@ include/
 lib/
 pyvenv.cfg
 
-requirements.txt
 
 #pretrained models file from spleeter
 pretrained_models/
