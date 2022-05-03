@@ -1,4 +1,4 @@
-python="3.7.9"
+python==3.7.9
 absl-py==0.15.0
 anyio==3.5.0
 appdirs==1.4.4
