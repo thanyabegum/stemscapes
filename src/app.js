@@ -101,12 +101,7 @@ let params = {
     }
 
 };
-
-// gui.add(params, 'toggle_play').name('play/pause');
-// gui.add(params, 'play_bass').name('toggle bass');
-// gui.add(params, 'play_drums').name('toggle drums');
-// gui.add(params, 'play_vocals').name('toggle vocals');
-// gui.add(params, 'play_other').name('toggle other');
+let folder = gui.addFolder('')
 gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
     try {
         play_all();
@@ -126,8 +121,8 @@ gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
     }
     
 });
-// gui.add(params, "load");
 gui.add(params, "toggle_sustain").name("sustain (=)");
+
 
 let raycaster;
 
