@@ -10,7 +10,6 @@ import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3 } from 
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { SeedScene } from 'scenes';
 import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks, init_audio_demo } from './audio';
-
 import * as Dat from 'dat.gui'; //testoresto
 
 // Initialize core ThreeJS components
