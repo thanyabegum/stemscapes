@@ -1,3 +1,1 @@
-web: npm install --dev
-web: npm install
-web: npm start
+web: npm install --dev && npm install && npm start
