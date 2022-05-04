@@ -1,14 +1,20 @@
-import * as THREE from 'three'
+import { AudioLoader, Audio } from 'three';
+import BASS from '../assets/tmp/music/bass.wav';
+import DRUMS from '../assets/tmp/music/drums.wav';
+import OTHER from '../assets/tmp/music/other.wav';
+import VOCALS from '../assets/tmp/music/vocals.wav';
+
 let bass = undefined;
 let drums = undefined;
 let other = undefined;
 let vocals = undefined;
-export function init_audio(listener) { 
+
+export function init_audio(listener) {
     // load bass and set it as the Audio object's buffer
-    const audioLoader_bass = new THREE.AudioLoader();
-    audioLoader_bass.load( 'assets/tmp/music/bass.wav', function( buffer ) {
+    const audioLoader_bass = new AudioLoader();
+    audioLoader_bass.load(BASS, function( buffer ) {
         // create a audio source BASS
-        const sound_bass = new THREE.Audio( listener );        
+        const sound_bass = new Audio( listener );        
         sound_bass.setBuffer( buffer );
         sound_bass.setLoop( true );
         sound_bass.setVolume( 0.0 ); //change this
@@ -17,10 +23,10 @@ export function init_audio(listener) {
     });    
     
     // load drums and set it as the Audio object's buffer
-    const audioLoader_drums = new THREE.AudioLoader();
-    audioLoader_drums.load( 'assets/tmp/music/drums.wav', function( buffer ) {
+    const audioLoader_drums = new AudioLoader();
+    audioLoader_drums.load(DRUMS, function( buffer ) {
         // create a audio source DRUMS
-        const sound_drums = new THREE.Audio( listener );
+        const sound_drums = new Audio( listener );
         sound_drums.setBuffer( buffer );
         sound_drums.setLoop( true );
         sound_drums.setVolume( 0.0 ); //change this
@@ -29,10 +35,10 @@ export function init_audio(listener) {
     });
     
     // load other instruments and set it as the Audio object's buffer
-    const audioLoader_other = new THREE.AudioLoader();
-    audioLoader_other.load( 'assets/tmp/music/other.wav', function( buffer ) {
+    const audioLoader_other = new AudioLoader();
+    audioLoader_other.load(OTHER, function( buffer ) {
         // create a audio source OTHER INSTRUMENTS
-        const sound_other = new THREE.Audio( listener );
+        const sound_other = new Audio( listener );
         sound_other.setBuffer( buffer );
         sound_other.setLoop( true );
         sound_other.setVolume( 0.0 ); //change this
@@ -41,10 +47,10 @@ export function init_audio(listener) {
     });
 
     // load vocals and set it as the Audio object's buffer
-    const audioLoader_vocals = new THREE.AudioLoader();
-    audioLoader_vocals.load( 'assets/tmp/music/vocals.wav', function( buffer ) {
+    const audioLoader_vocals = new AudioLoader();
+    audioLoader_vocals.load(VOCALS, function( buffer ) {
         // create a audio source VOCALS
-        const sound_vocals = new THREE.Audio( listener );
+        const sound_vocals = new Audio( listener );
         sound_vocals.setBuffer( buffer );
         sound_vocals.setLoop( true );
         sound_vocals.setVolume( 0.0 ); //change this
@@ -54,10 +60,10 @@ export function init_audio(listener) {
 }
 export function init_audio_demo(listener, name) { 
     // load bass and set it as the Audio object's buffer
-    const audioLoader_bass = new THREE.AudioLoader();
+    const audioLoader_bass = new AudioLoader();
     audioLoader_bass.load( 'assets/tmp/demo/'+name+'/bass.wav', function( buffer ) {
         // create a audio source BASS
-        const sound_bass = new THREE.Audio( listener );        
+        const sound_bass = new Audio( listener );        
         sound_bass.setBuffer( buffer );
         sound_bass.setLoop( true );
         sound_bass.setVolume( 0.0 ); //change this
@@ -66,10 +72,10 @@ export function init_audio_demo(listener, name) {
     });    
     
     // load drums and set it as the Audio object's buffer
-    const audioLoader_drums = new THREE.AudioLoader();
+    const audioLoader_drums = new AudioLoader();
     audioLoader_drums.load( 'assets/tmp/demo/'+name+'/drums.wav', function( buffer ) {
         // create a audio source DRUMS
-        const sound_drums = new THREE.Audio( listener );
+        const sound_drums = new Audio( listener );
         sound_drums.setBuffer( buffer );
         sound_drums.setLoop( true );
         sound_drums.setVolume( 0.0 ); //change this
@@ -78,10 +84,10 @@ export function init_audio_demo(listener, name) {
     });
     
     // load other instruments and set it as the Audio object's buffer
-    const audioLoader_other = new THREE.AudioLoader();
+    const audioLoader_other = new AudioLoader();
     audioLoader_other.load( 'assets/tmp/demo/'+name+'/other.wav', function( buffer ) {
         // create a audio source OTHER INSTRUMENTS
-        const sound_other = new THREE.Audio( listener );
+        const sound_other = new Audio( listener );
         sound_other.setBuffer( buffer );
         sound_other.setLoop( true );
         sound_other.setVolume( 0.0 ); //change this
@@ -90,10 +96,10 @@ export function init_audio_demo(listener, name) {
     });
 
     // load vocals and set it as the Audio object's buffer
-    const audioLoader_vocals = new THREE.AudioLoader();
+    const audioLoader_vocals = new AudioLoader();
     audioLoader_vocals.load( 'assets/tmp/demo/'+name+'/vocals.wav', function( buffer ) {
         // create a audio source VOCALS
-        const sound_vocals = new THREE.Audio( listener );
+        const sound_vocals = new Audio( listener );
         sound_vocals.setBuffer( buffer );
         sound_vocals.setLoop( true );
         sound_vocals.setVolume( 0.0 ); //change this
