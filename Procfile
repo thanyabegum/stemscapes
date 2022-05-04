@@ -1,1 +1,1 @@
-web: npm install --dev && npm install && npm start
+web: npm install --include=dev && npm install && npm start
