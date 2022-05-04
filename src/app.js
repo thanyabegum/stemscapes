@@ -9,7 +9,8 @@
 import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { SeedScene } from 'scenes';
-import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks } from './audio';
+import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks, init_audio_demo } from './audio';
+
 import * as Dat from 'dat.gui'; //testoresto
 
 // Initialize core ThreeJS components
@@ -76,6 +77,7 @@ let params = {
         toggle_mute(other);
     },
     file_name: "royaltyfree1.mp3",
+    demo_songs: "royaltyfree1",
     load: function() {
         play_all();
         init_audio(listener);
@@ -103,6 +105,28 @@ let params = {
 };
 let folder = gui.addFolder('')
 let text = gui.add(params, "file_name").name('file name')
+gui.add(params, "demo_songs", ["royaltyfree1", "royaltyfree2", "royaltyfree3"]).name("demo songs").onChange(function(text){
+    loading = true;
+    if(bass && drums && vocals && other){
+        bass.pause();
+        drums.pause();
+        vocals.pause();
+        other.pause();
+    }
+    bass = undefined;
+    drums = undefined;
+    vocals = undefined;
+    other = undefined;
+    sustain_bass = false;
+    sustain_drums = false;
+    sustain_vocals = false;
+    sustain_other = false;
+    delete_tracks();
+    console.log("switched")
+    init_audio_demo(listener, text);            
+    wait_init_and_play();
+    loading=false;
+});
 gui.add(params, "toggle_sustain").name("sustain (=)");
 
 function load_new_song(value){    
