@@ -13,7 +13,6 @@ import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks, init_audi
 
 import * as Dat from 'dat.gui'; //testoresto
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { ResultSetDependencies } from 'mathjs';
 
 // Initialize core ThreeJS components
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1250);
