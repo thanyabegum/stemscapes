@@ -9,7 +9,7 @@
 import { WebGLRenderer, PerspectiveCamera, Clock } from 'three';
 import * as THREE from 'three';
 import { SeedScene } from 'scenes';
-import { init_audio, toggle_mute, play_all, get_sounds } from './audio';
+import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks } from './audio';
 
 import * as Dat from 'dat.gui'; //testoresto
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
@@ -24,14 +24,16 @@ const listener = new THREE.AudioListener();
 camera.add( listener ); 
 
 // music stuff
-let bass;
-let drums;
-let vocals;
-let other;
+let bass = undefined;
+let drums = undefined;
+let vocals = undefined;
+let other = undefined;
 let sustain_bass = false;
 let sustain_drums = false;
 let sustain_vocals = false;
 let sustain_other = false;
+let song_name;
+let loading = false;
 const gui = new Dat.GUI();
 
 function wait_init_and_play(){
@@ -59,7 +61,7 @@ function wait_init_and_play(){
 let params = {
     play : function() {
         if(bass === undefined) {
-            init_audio(listener);
+            init_audio(listener);            
         }     
         wait_init_and_play();
         return "success"
@@ -78,6 +80,7 @@ let params = {
     },
     file_name: "",
     load: function() {
+        play_all();
         init_audio(listener);
         wait_init_and_play();
     },
@@ -102,26 +105,45 @@ let params = {
 
 };
 let folder = gui.addFolder('')
-gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
+let text = gui.add(params, "file_name").name('file name')
+gui.add(params, "toggle_sustain").name("sustain (=)");
+
+function load_new_song(value){    
     try {
-        play_all();
-        bass = undefined;
-        drums = undefined;
-        vocals = undefined;
-        other = undefined;
+        loading = true;
         var objReq = new XMLHttpRequest();
         console.log("sending request")
-        objReq.open("GET", "http://localhost:8888" + "?filename=" + value, false);
+        objReq.open("GET", "http://localhost:8888" + "?filename=" + value, true);
+        objReq.onload = function(){
+            if(bass && drums && vocals && other){
+                bass.pause();
+                drums.pause();
+                vocals.pause();
+                other.pause();
+            }
+            bass = undefined;
+            drums = undefined;
+            vocals = undefined;
+            other = undefined;
+            sustain_bass = false;
+            sustain_drums = false;
+            sustain_vocals = false;
+            sustain_other = false;
+            delete_tracks();
+            console.log("processed")
+            params.play();
+            loading=false;
+        }
+        objReq.onerror = function(e){
+            console.log("error", e);
+        }
         objReq.send(null);
-        location.reload();
     }
     catch(error) {
-        location.reload();
-        console.log(error)
+        console.log(error)        
     }
-    
-});
-gui.add(params, "toggle_sustain").name("sustain (=)");
+}
+
 
 
 let raycaster;
@@ -149,8 +171,12 @@ window.addEventListener( 'click', function () {
 
     if (controls.isLocked) controls.unlock();
     else controls.lock();
-    if(!bass) params.play();
-    else if(!bass.isPlaying) params.play();
+    if(loading) console.log("LOADING...");
+    else{
+        if(!bass) params.play();
+        else if(!bass.isPlaying) params.play();
+    }
+    
 
 } );
 
@@ -165,33 +191,36 @@ let canJump = false;
 
 let prevTime = performance.now();
 
-const onKeyDown = function ( event ) {    
+const onKeyDown = function ( event ) {
     switch ( event.code ) {        
         case 'ArrowUp':
         case 'KeyW':
-            moveForward = (true && vocals !== undefined);
+            moveForward = (true);
             break;
         case 'ArrowLeft':
         case 'KeyA':
-            moveLeft = (true && vocals !== undefined);
+            moveLeft = (true);
             break;
         case 'ArrowDown':
         case 'KeyS':
-            moveBackward = (true && vocals !== undefined);
+            moveBackward = (true);
             break;
         case 'ArrowRight':
         case 'KeyD':
-            moveRight = (true && vocals !== undefined);
+            moveRight = (true);
             break;
         case 'Space':
-            if (canJump === true && vocals !== undefined) velocity.y += 100;
+            if (canJump === true) velocity.y += 100;
             canJump = false;
             break;
 
         case 'Equal':
-            if(controls.isLocked) params.toggle_sustain();
+            if(controls.isLocked && other !== undefined) params.toggle_sustain();
             break;
-
+        case 'Enter':            
+            if(text.getValue() != song_name) load_new_song(text.getValue());
+            song_name = text.getValue();         
+            break;
     }
 };
 
@@ -234,10 +263,8 @@ const direction = new THREE.Vector3();
 
 const animate = (timeStamp) => {
     requestAnimationFrame(animate);
-
     // Get change in time from last frame
     const delta = clock.getDelta();
-
     // Call update for each object in the updateList
     for (const obj of scene.state.updateList) {
         // Some animations rely on the current time (timeStamp)

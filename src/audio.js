@@ -1,9 +1,8 @@
-import { Audio } from "three";
 import * as THREE from 'three'
-let bass;
-let drums;
-let other;
-let vocals;
+let bass = undefined;
+let drums = undefined;
+let other = undefined;
+let vocals = undefined;
 export function init_audio(listener) { 
     // load bass and set it as the Audio object's buffer
     const audioLoader_bass = new THREE.AudioLoader();
@@ -90,4 +89,10 @@ export function toggle_mute(sound) {
         sound.setVolume( 0.5 );
     }
     else sound.setVolume( 0.0 );
+}
+export function delete_tracks() {
+    bass = undefined;
+    drums = undefined;
+    other = undefined;
+    vocals = undefined;
 }
