@@ -9,7 +9,7 @@
 import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { SeedScene } from 'scenes';
-import { init_audio, toggle_mute, play_all, get_sounds } from './audio';
+import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks } from './audio';
 import * as Dat from 'dat.gui'; //testoresto
 
 // Initialize core ThreeJS components
@@ -20,15 +20,17 @@ const renderer = new WebGLRenderer({ antialias: true });
 const listener = new AudioListener();
 camera.add( listener ); 
 
-// testoresto
-let bass;
-let drums;
-let vocals;
-let other;
+// music stuff
+let bass = undefined;
+let drums = undefined;
+let vocals = undefined;
+let other = undefined;
 let sustain_bass = false;
 let sustain_drums = false;
 let sustain_vocals = false;
 let sustain_other = false;
+let song_name;
+let loading = false;
 const gui = new Dat.GUI();
 
 function wait_init_and_play(){
@@ -56,7 +58,7 @@ function wait_init_and_play(){
 let params = {
     play : function() {
         if(bass === undefined) {
-            init_audio(listener);
+            init_audio(listener);            
         }     
         wait_init_and_play();
         return "success"
@@ -75,6 +77,7 @@ let params = {
     },
     file_name: "",
     load: function() {
+        play_all();
         init_audio(listener);
         wait_init_and_play();
     },
@@ -99,26 +102,45 @@ let params = {
 
 };
 let folder = gui.addFolder('')
-gui.add(params, "file_name").name('file name').onFinishChange(function (value) {
+let text = gui.add(params, "file_name").name('file name')
+gui.add(params, "toggle_sustain").name("sustain (=)");
+
+function load_new_song(value){    
     try {
-        play_all();
-        bass = undefined;
-        drums = undefined;
-        vocals = undefined;
-        other = undefined;
+        loading = true;
         var objReq = new XMLHttpRequest();
         console.log("sending request")
-        objReq.open("GET", "http://localhost:8888" + "?filename=" + value, false);
+        objReq.open("GET", "http://localhost:8888" + "?filename=" + value, true);
+        objReq.onload = function(){
+            if(bass && drums && vocals && other){
+                bass.pause();
+                drums.pause();
+                vocals.pause();
+                other.pause();
+            }
+            bass = undefined;
+            drums = undefined;
+            vocals = undefined;
+            other = undefined;
+            sustain_bass = false;
+            sustain_drums = false;
+            sustain_vocals = false;
+            sustain_other = false;
+            delete_tracks();
+            console.log("processed")
+            params.play();
+            loading=false;
+        }
+        objReq.onerror = function(e){
+            console.log("error", e);
+        }
         objReq.send(null);
-        location.reload();
     }
     catch(error) {
-        location.reload();
-        console.log(error)
+        console.log(error)        
     }
-    
-});
-gui.add(params, "toggle_sustain").name("sustain (=)");
+}
+
 
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
@@ -139,8 +161,11 @@ window.addEventListener('click', () => {
     if (controls.isLocked) controls.unlock();
     else controls.lock();
 
-    if (!bass) params.play();
-    else if (!bass.isPlaying) params.play();
+    if (loading) console.log("LOADING...");
+    else {
+        if (!bass) params.play();
+        else if (!bass.isPlaying) params.play();
+    }
 });
 scene.add(controls.getObject());
 
@@ -155,26 +180,30 @@ const onKeyDown = function(event) {
     switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
-            moveForward = (true && vocals !== undefined);
+            moveForward = (true);
             break;
         case 'ArrowLeft':
         case 'KeyA':
-            moveLeft = (true && vocals !== undefined);
+            moveLeft = (true);
             break;
         case 'ArrowDown':
         case 'KeyS':
-            moveBackward = (true && vocals !== undefined);
+            moveBackward = (true);
             break;
         case 'ArrowRight':
         case 'KeyD':
-            moveRight = (true && vocals !== undefined);
+            moveRight = (true);
             break;
         case 'Space':
-            if (canJump === true && vocals !== undefined) velocity.y += 100;
+            if (canJump === true) velocity.y += 100;
             canJump = false;
             break;
         case 'Equal':
-            if (controls.isLocked) params.toggle_sustain();
+            if (controls.isLocked && other !== undefined) params.toggle_sustain();
+            break;
+        case 'Enter':            
+            if (text.getValue() != song_name) load_new_song(text.getValue());
+            song_name = text.getValue();         
     }
 };
 
@@ -218,6 +247,7 @@ const direction = new Vector3();
 const animate = (timeStamp) => {
     requestAnimationFrame(animate);
 
+    // Music playback based on position
     if(camera.position.x > 0 && camera.position.z > 0) {
         if(bass !== undefined){
             if(bass.gain.gain.value == 0.0) {                
@@ -275,6 +305,7 @@ const animate = (timeStamp) => {
             }  
         }
     }
+    
     // in lake ADD CODE HERE
 
     // Get change in time from last frame
