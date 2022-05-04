@@ -6,20 +6,18 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Clock } from 'three';
-import * as THREE from 'three';
+import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3 } from 'three';
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { SeedScene } from 'scenes';
 import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks, init_audio_demo } from './audio';
-
 import * as Dat from 'dat.gui'; //testoresto
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
 // Initialize core ThreeJS components
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1250);
 const clock = new Clock();
 const scene = new SeedScene();
 const renderer = new WebGLRenderer({ antialias: true });
-const listener = new THREE.AudioListener();
+const listener = new AudioListener();
 camera.add( listener ); 
 
 // music stuff
@@ -280,8 +278,8 @@ onWindowResize();
 window.addEventListener('resize', onWindowResize, false);
 
 // Render loop
-const velocity = new THREE.Vector3();
-const direction = new THREE.Vector3();
+const velocity = new Vector3();
+const direction = new Vector3();
 
 const animate = (timeStamp) => {
     requestAnimationFrame(animate);
