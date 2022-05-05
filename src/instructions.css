@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Sarabun&display=swap');
+
 #instructions-container {
     position: fixed;
     background-color: rgba(0,0,0,0.5);
@@ -15,13 +17,24 @@
 
     color: #ffffff;
     text-align: center;
-    font-family: Poppins, sans-serif;
-    font-size: 14px;
-    line-height: 24px;
+    font-family: Sarabun, sans-serif;
 
     cursor: pointer;
 
-    text-align: center;
+    text-align: left;
     margin-left: auto;
     margin-right: auto;
+}
+
+#instructions p, ul {
+    line-height: 1.4;
+}
+
+#instructions h1, h2 {
+    font-family: 'Berkshire Swash', serif;
+}
+
+#instructions h1 {
+    font-size: 64px;
+    margin-bottom: 0;
 }

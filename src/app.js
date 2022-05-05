@@ -22,21 +22,25 @@ const renderer = new WebGLRenderer({ antialias: true });
 const listener = new AudioListener();
 camera.add( listener ); 
 
+// Instructions
 let instructionsContainer = document.createElement('div');
 instructionsContainer.id = 'instructions-container';
 instructionsContainer.innerHTML = INSTRUCTION_HTML;
-document.body.appendChild(instructionsContainer); 
+document.body.appendChild(instructionsContainer);
 
 function hideInstructions() {
-    let instructionsContainer = document.getElementById('instructions-container')
-    if (instructionsContainer.style.display !== 'none') {
-        instructionsContainer.style.opacity = '0'
-        setTimeout(() => {
-            instructionsContainer.style.display = 'none'
-        }, 2000)
-    }
+    const instructionsContainer = document.getElementById('instructions-container');
+    instructionsContainer.style.opacity = '0';
+    setTimeout(() => {
+        instructionsContainer.style.display = 'none';
+    }, 1000);
 }
 
+function showInstructions() {
+    const instructionsContainer = document.getElementById('instructions-container');
+    instructionsContainer.style.display = 'block';
+    instructionsContainer.style.opacity = '1';
+}
 
 // music stuff
 let bass = undefined;
@@ -118,7 +122,6 @@ let params = {
             console.log(sustain_vocals);
         }
     }
-
 };
 
 gui.addFolder('')
@@ -151,6 +154,7 @@ function boundary_detect(){
     if(camera.position.z < -277){
         camera.position.z = -277
     }
+
     if(camera.position.z > 277){
         camera.position.z = 277
     }
@@ -162,7 +166,6 @@ function boundary_detect(){
     if(camera.position.x > 270){
         camera.position.x = 270
     }
-
 }
 
 function load_new_song(value){    
@@ -261,12 +264,13 @@ const onKeyDown = function ( event ) {
         case 'Equal':
             if(controls.isLocked && other !== undefined) params.toggle_sustain();
             break;
-        case 'Enter':            
+        case 'Enter':
             if (text.getValue() != song_name) load_new_song(text.getValue());
             song_name = text.getValue();  
             break;
         case 'KeyI':
-            hideInstructions();
+            if (instructionsContainer.style.display === "none") showInstructions();
+            else hideInstructions();
     }
 };
 
