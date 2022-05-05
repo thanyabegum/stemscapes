@@ -51,7 +51,7 @@ class Land extends Mesh {
         this.depth = depth;
 
         // create divot for pond
-        let pondRadius = 40;
+        let pondRadius = 35;
         for (let i = 0, l = position.count; i < l; i++) {
             vertex.fromBufferAttribute(position, i);
             if (Math.sqrt(Math.pow(vertex.x, 2) + Math.pow(vertex.z, 2)) <= pondRadius) {
