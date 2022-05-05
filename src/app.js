@@ -11,6 +11,8 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { SeedScene } from 'scenes';
 import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks, init_audio_demo } from './audio';
 import * as Dat from 'dat.gui'; //testoresto
+import './instructions.css';
+import INSTRUCTION_HTML from './instructions.html';
 
 // Initialize core ThreeJS components
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1250);
@@ -19,6 +21,22 @@ const scene = new SeedScene();
 const renderer = new WebGLRenderer({ antialias: true });
 const listener = new AudioListener();
 camera.add( listener ); 
+
+let instructionsContainer = document.createElement('div');
+instructionsContainer.id = 'instructions-container';
+instructionsContainer.innerHTML = INSTRUCTION_HTML;
+document.body.appendChild(instructionsContainer); 
+
+function hideInstructions() {
+    let instructionsContainer = document.getElementById('instructions-container')
+    if (instructionsContainer.style.display !== 'none') {
+        instructionsContainer.style.opacity = '0'
+        setTimeout(() => {
+            instructionsContainer.style.display = 'none'
+        }, 2000)
+    }
+}
+
 
 // music stuff
 let bass = undefined;
@@ -244,9 +262,11 @@ const onKeyDown = function ( event ) {
             if(controls.isLocked && other !== undefined) params.toggle_sustain();
             break;
         case 'Enter':            
-            if(text.getValue() != song_name) load_new_song(text.getValue());
-            song_name = text.getValue();         
+            if (text.getValue() != song_name) load_new_song(text.getValue());
+            song_name = text.getValue();  
             break;
+        case 'KeyI':
+            hideInstructions();
     }
 };
 
@@ -360,7 +380,7 @@ const animate = (timeStamp) => {
             }  
         }
     }
-    
+
     // Update camera position
     if (controls.isLocked) {
         // console.log(controls.getObject().position);
