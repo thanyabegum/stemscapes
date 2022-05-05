@@ -76,7 +76,7 @@ let params = {
         toggle_mute(other);
     },
     file_name: "royaltyfree1.mp3",
-    demo_songs: "royaltyfree1",
+    demo_songs: "",
     load: function() {
         play_all();
         init_audio(listener);
