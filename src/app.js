@@ -6,7 +6,7 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3 } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Clock, AudioListener, Vector3, Raycaster } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { SeedScene } from 'scenes';
 import { init_audio, toggle_mute, play_all, get_sounds, delete_tracks, init_audio_demo } from './audio';
@@ -102,7 +102,8 @@ let params = {
     }
 
 };
-let folder = gui.addFolder('')
+
+gui.addFolder('')
 let text = gui.add(params, "file_name").name('file name')
 gui.add(params, "demo_songs", ["royaltyfree1", "royaltyfree2", "royaltyfree3", "royaltyfree4"]).name("demo songs").onChange(function(text){
     loading = true;
@@ -127,6 +128,24 @@ gui.add(params, "demo_songs", ["royaltyfree1", "royaltyfree2", "royaltyfree3", "
     loading=false;
 });
 gui.add(params, "toggle_sustain").name("sustain (=)");
+
+function boundary_detect(){
+    if(camera.position.z < -277){
+        camera.position.z = -277
+    }
+    if(camera.position.z > 277){
+        camera.position.z = 277
+    }
+
+    if(camera.position.x < -270){
+        camera.position.x = -270
+    }
+
+    if(camera.position.x > 270){
+        camera.position.x = 270
+    }
+
+}
 
 function load_new_song(value){    
     try {
@@ -164,13 +183,6 @@ function load_new_song(value){
     }
 }
 
-
-
-let raycaster;
-
-// Set up camera
-//camera.position.set(75, window.innerWidth / window.innerHeight, 1, 1000 );
-camera.position.set(0, 0, 0);
 // Set up camera initial position
 const CAMERA_HEIGHT = 6;
 camera.position.y = CAMERA_HEIGHT;
@@ -188,7 +200,6 @@ document.body.appendChild(canvas);
 const controls = new PointerLockControls( camera, document.body );
 
 window.addEventListener( 'click', function () {
-
     if (controls.isLocked) controls.unlock();
     else controls.lock();
     if(loading) console.log("LOADING...");
@@ -196,8 +207,6 @@ window.addEventListener( 'click', function () {
         if(!bass) params.play();
         else if(!bass.isPlaying) params.play();
     }
-    
-
 } );
 
 scene.add( controls.getObject() );
@@ -208,8 +217,6 @@ let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 let canJump = false;
-
-let prevTime = performance.now();
 
 const onKeyDown = function ( event ) {
     switch ( event.code ) {        
@@ -233,7 +240,6 @@ const onKeyDown = function ( event ) {
             if (canJump === true) velocity.y += 100;
             canJump = false;
             break;
-
         case 'Equal':
             if(controls.isLocked && other !== undefined) params.toggle_sustain();
             break;
@@ -283,6 +289,7 @@ const direction = new Vector3();
 
 const animate = (timeStamp) => {
     requestAnimationFrame(animate);
+
     // Get change in time from last frame
     const delta = clock.getDelta();
     // Call update for each object in the updateList
@@ -292,7 +299,9 @@ const animate = (timeStamp) => {
         else obj.update(delta); // others rely on the change in time (delta)
     }
 
-    // music controls
+    boundary_detect()
+    
+    // Music playback based on position
     if(camera.position.x > 0 && camera.position.z > 0) {
         if(bass !== undefined){
             if(bass.gain.gain.value == 0.0) {                
@@ -351,8 +360,10 @@ const animate = (timeStamp) => {
             }  
         }
     }
+    
     // Update camera position
     if (controls.isLocked) {
+        // console.log(controls.getObject().position);
         velocity.x -= velocity.x * 10.0 * delta;
         velocity.z -= velocity.z * 10.0 * delta;
         velocity.y -= 9.8 * 50.0 * delta; // 100.0 = mass
