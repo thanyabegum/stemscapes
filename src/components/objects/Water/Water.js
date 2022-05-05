@@ -4,8 +4,8 @@ class Water extends Mesh {
     constructor(parent) {
         let new_geo = new Geometry();
 
-        let width = 30;
-        let depth = 30;
+        let width = 100;
+        let depth = 100;
         let wave_scale = 4;
         let height_adj = 0.5;
         let wave_freq = 2;
