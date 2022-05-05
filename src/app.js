@@ -104,7 +104,7 @@ let params = {
 };
 let folder = gui.addFolder('')
 let text = gui.add(params, "file_name").name('file name')
-gui.add(params, "demo_songs", ["royaltyfree1", "royaltyfree2", "royaltyfree3"]).name("demo songs").onChange(function(text){
+gui.add(params, "demo_songs", ["royaltyfree1", "royaltyfree2", "royaltyfree3", "royaltyfree4"]).name("demo songs").onChange(function(text){
     loading = true;
     if(bass && drums && vocals && other){
         bass.pause();

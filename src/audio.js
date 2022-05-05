@@ -16,6 +16,11 @@ import DRUMS_3 from "../assets/tmp/demo/royaltyfree3/drums.wav";
 import OTHER_3 from "../assets/tmp/demo/royaltyfree3/other.wav";
 import VOCALS_3 from "../assets/tmp/demo/royaltyfree3/vocals.wav";
 
+import BASS_4 from "../assets/tmp/demo/royaltyfree4/bass.wav";
+import DRUMS_4 from "../assets/tmp/demo/royaltyfree4/drums.wav";
+import OTHER_4 from "../assets/tmp/demo/royaltyfree4/other.wav";
+import VOCALS_4 from "../assets/tmp/demo/royaltyfree4/vocals.wav";
+
 let demo_files = {
     "royaltyfree1": {
         "bass": BASS_1,
@@ -34,6 +39,12 @@ let demo_files = {
         "drums": DRUMS_3,
         "other": OTHER_3,
         "vocals": VOCALS_3
+    },
+    "royaltyfree4": {
+        "bass": BASS_4,
+        "drums": DRUMS_4,
+        "other": OTHER_4,
+        "vocals": VOCALS_4
     }
 }
 let bass = undefined;
